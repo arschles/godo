@@ -16,8 +16,9 @@ func format(fmtStr string, args []interface{}) string {
 	return fmt.Sprintf(fmtStr, args)
 }
 
-func errAndExit(code int, fmtStr string, args ...interface{}) {
+func errfAndExit(code int, fmtStr string, args ...interface{}) {
 	s := format(fmtStr, args)
+	s = rgbterm.String(s, 255, 0, 0, 0, 0, 0)
 	fmt.Println(s)
 	os.Exit(code)
 }

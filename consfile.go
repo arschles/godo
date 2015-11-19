@@ -8,13 +8,13 @@ type Consfile struct {
 }
 
 type Bootstrap struct {
-	Command string `yaml:"output"`
+	Commands []string `yaml:"commands"`
 }
 
 type Build struct {
-	Depends string            `yaml:"depends"`
-	Output  string            `yaml:"output"`
-	Env     map[string]string `yaml:"env"`
+	Depends string   `yaml:"depends"`
+	Output  string   `yaml:"output"`
+	Env     []string `yaml:"env"`
 }
 
 type Test struct {
