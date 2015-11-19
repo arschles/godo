@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/ioutil"
+	"os"
 
 	"github.com/codegangsta/cli"
 	"gopkg.in/yaml.v2"
@@ -34,4 +35,6 @@ func main() {
 			Action:      build,
 		},
 	}
+
+	app.Run(os.Args)
 }

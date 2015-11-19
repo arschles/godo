@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/codegangsta/cli"
+	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/codegangsta/cli"
 )
 
 func build(c *cli.Context) {
@@ -18,7 +20,9 @@ func build(c *cli.Context) {
 	}
 	statusf("go %s", strings.Join(args, " "))
 	cmd := exec.Command("go", args...)
-	cmd.Env = append(cmd.Env, "GOVENDOREXPERIMENT=1")
+	os.Setenv("GO15VENDOREXPERIMENT", "1")
+	cmd.Env = append(cmd.Env, "GO15VENDOREXPERIMENT=1")
+	cmd.Dir = "" // force using the current working directory
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		errAndExit(1, string(out))
