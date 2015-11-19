@@ -3,3 +3,6 @@ import:
 - package: gopkg.in/yaml.v2
 - package: github.com/aybabtme/rgbterm
 - package: github.com/codegangsta/cli
+- package: github.com/labstack/gommon
+  subpackages:
+  - /color

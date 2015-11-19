@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/arschles/gocons/log"
 	"github.com/codegangsta/cli"
 	"gopkg.in/yaml.v2"
 )
@@ -26,6 +27,13 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "gocons"
 	app.Usage = "gocons is a Makefile replacement for Go projects"
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "debug",
+			Usage: "Enable verbose debugging output",
+		},
+	}
+
 	app.Commands = []cli.Command{
 		{
 			Name:        "build",
@@ -41,6 +49,11 @@ func main() {
 			Description: "This command will bootstrap the project. Generally, you'll only have to do this once after you first clone the project.",
 			Action:      bootstrap,
 		},
+	}
+
+	app.Before = func(c *cli.Context) error {
+		log.IsDebugging = c.Bool("debug")
+		return nil
 	}
 
 	app.Run(os.Args)

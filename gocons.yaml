@@ -1,7 +1,6 @@
 bootstrap:
   commands:
-    - export GO15VENDOREXPERIMENT=1
-    - echo $GO15VENDOREXPERIMENT
+    - sh -c 'echo "hello"''
 build:
   output: "gocons"
   env:

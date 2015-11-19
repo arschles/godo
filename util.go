@@ -10,7 +10,9 @@ func cmdStr(cmd *exec.Cmd) string {
 	for _, arg := range cmd.Args {
 		cmds = append(cmds, arg)
 	}
-
 	return strings.Join(cmds, " ")
-	//TODO: print out the env in debug mode
+}
+
+func envStr(cmd *exec.Cmd) string {
+	return strings.Join(cmd.Env, ":")
 }

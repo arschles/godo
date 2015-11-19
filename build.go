@@ -4,13 +4,14 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/arschles/gocons/log"
 	"github.com/codegangsta/cli"
 )
 
 func build(c *cli.Context) {
 	consfile, err := getConsfile()
 	if err != nil {
-		errfAndExit(1, "error getting consfile [%s]", err)
+		log.Die("error getting consfile [%s]", err)
 	}
 	args := []string{"build"}
 	if consfile.Build.Output != "" {
@@ -24,15 +25,16 @@ func build(c *cli.Context) {
 	}
 	cmd.Dir = "" // force using the current working directory
 
-	statusf(cmdStr(cmd))
+	log.Info(cmdStr(cmd))
+	log.Debug("Env: %s", envStr(cmd))
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		errfAndExit(1, string(out))
+		log.Die(string(out))
 	}
 	if len(out) == 0 {
-		successf("success")
+		log.Info("done")
 	} else {
-		successf(string(out))
+		log.Info(string(out))
 	}
 }

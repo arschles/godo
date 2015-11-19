@@ -1,25 +1,29 @@
 package main
 
 import (
-	"fmt"
+	"os"
 	"os/exec"
 
+	"github.com/arschles/gocons/log"
 	"github.com/codegangsta/cli"
 )
 
 func bootstrap(c *cli.Context) {
 	consfile, err := getConsfile()
 	if err != nil {
-		errfAndExit(1, "error getting consfile [%s]", err)
+		log.Die("error getting consfile [%s]", err)
 	}
-	for i, cmdStr := range consfile.Bootstrap.Commands {
-		cmd := exec.Command(cmdStr)
-		statusf(cmdStr)
+	for i, str := range consfile.Bootstrap.Commands {
+		cmd := exec.Command(str)
+		cmd.Env = os.Environ()
+
+		log.Info(cmdStr(cmd))
+		log.Debug("Env: %s", envStr(cmd))
+
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			s := fmt.Sprintf("error running command %d, stopping [%s]", i+1, err)
-			errfAndExit(1, s)
+			log.Die("error running command %d, stopping (%s)", i+1, err)
 		}
-		successf(string(out))
+		log.Info(string(out))
 	}
 }
