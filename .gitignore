@@ -24,3 +24,4 @@ _testmain.go
 *.prof
 example/example
 example/example-gocons
+gocons
