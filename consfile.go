@@ -12,8 +12,9 @@ type Bootstrap struct {
 }
 
 type Build struct {
-	Depends string `yaml:"depends"`
-	Output  string `yaml:"output"`
+	Depends string            `yaml:"depends"`
+	Output  string            `yaml:"output"`
+	Env     map[string]string `yaml:"env"`
 }
 
 type Test struct {

@@ -1,12 +1,21 @@
 package main
 
 import (
-	"os"
+	"fmt"
 	"os/exec"
 	"strings"
 
 	"github.com/codegangsta/cli"
 )
+
+func cmdStr(cmd *exec.Cmd) string {
+	var cmds []string
+	for _, arg := range cmd.Args {
+		cmds = append(cmds, arg)
+	}
+
+	return fmt.Sprintf("%s (Env %s", strings.Join(cmds, " "), strings.Join(cmd.Env, ":"))
+}
 
 func build(c *cli.Context) {
 	consfile, err := getConsfile()
@@ -18,11 +27,14 @@ func build(c *cli.Context) {
 		args = append(args, "-o")
 		args = append(args, consfile.Build.Output)
 	}
-	statusf("go %s", strings.Join(args, " "))
 	cmd := exec.Command("go", args...)
-	os.Setenv("GO15VENDOREXPERIMENT", "1")
-	cmd.Env = append(cmd.Env, "GO15VENDOREXPERIMENT=1")
+	for name, val := range consfile.Build.Env {
+		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", name, val))
+	}
 	cmd.Dir = "" // force using the current working directory
+
+	statusf(cmdStr(cmd))
+
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		errAndExit(1, string(out))

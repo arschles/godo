@@ -1,2 +1,4 @@
 build:
   output: "gocons"
+  env:
+    GO15VENDOREXPERIMENT: 1
