@@ -22,6 +22,5 @@ _testmain.go
 *.exe
 *.test
 *.prof
-vendor/
 example/example
 example/example-gocons
