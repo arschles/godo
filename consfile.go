@@ -1,10 +1,11 @@
 package main
 
 type Consfile struct {
-	Bootstrap Bootstrap `yaml:"bootstrap"`
-	Build     Build     `yaml:"build"`
-	Test      Test      `yaml:"test"`
-	Install   Install   `yaml:"install"`
+	Bootstrap     Bootstrap      `yaml:"bootstrap"`
+	Build         Build          `yaml:"build"`
+	Test          Test           `yaml:"test"`
+	Install       Install        `yaml:"install"`
+	OtherCommands []OtherCommand `yaml:"others"`
 }
 
 type Bootstrap struct {
@@ -23,7 +24,7 @@ type Test struct {
 	Paths   []string `yaml:"paths"`
 }
 
-type Other struct {
+type OtherCommand struct {
 	Name    string `yaml:"name"`
 	Command string `yaml:"cmd"`
 	Depends string `yaml:"depends"`

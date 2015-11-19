@@ -3,4 +3,6 @@ bootstrap:
     - sh -c 'echo "hello"''
 build:
   output: "gocons"
-  env:
+others:
+  - name: cleanup
+    command: echo cleanup

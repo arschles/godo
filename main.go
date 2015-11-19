@@ -49,6 +49,13 @@ func main() {
 			Description: "This command will bootstrap the project. Generally, you'll only have to do this once after you first clone the project.",
 			Action:      bootstrap,
 		},
+		{
+			Name:        "other",
+			Aliases:     []string{"oth"},
+			Usage:       "execute a command listed under 'other'",
+			Description: "This command will run a command specified under 'other'",
+			Action:      other,
+		},
 	}
 
 	app.Before = func(c *cli.Context) error {
