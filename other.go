@@ -4,8 +4,8 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/arschles/gocons/log"
 	"github.com/codegangsta/cli"
-	"github.com/helm/helm/log"
 )
 
 func other(c *cli.Context) {

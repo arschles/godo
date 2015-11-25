@@ -1,5 +1,6 @@
 bootstrap:
   commands:
+    - glide install
     - sh -c 'echo "hello"''
 build:
   output: "gocons"

@@ -2,7 +2,10 @@ package: main
 import:
 - package: gopkg.in/yaml.v2
 - package: github.com/aybabtme/rgbterm
+  version: c9a1bdb3761d262af7109d6463977046dafde36e
 - package: github.com/codegangsta/cli
+  version: 0302d3914d2a6ad61404584cdae6e6dbc9c03599
 - package: github.com/labstack/gommon
+  version: cc4f2986014fdd1f2e7800b3c082af17cad28db2
   subpackages:
   - /color
