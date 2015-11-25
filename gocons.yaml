@@ -4,6 +4,8 @@ bootstrap:
     - sh -c 'echo "hello"''
 build:
   output: "gocons"
+install:
+  to: $GOPATH/bin/gocons
 others:
-  - name: cleanup
-    command: echo cleanup
+  - name: clean
+    command: rm ./gocons && rm $GOPATH/bin/gocons

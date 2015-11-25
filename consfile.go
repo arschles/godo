@@ -18,6 +18,13 @@ type Build struct {
 	Env     []string `yaml:"env"`
 }
 
+type Install struct {
+	Depends    string   `yaml:"depends"`
+	PreScript  string   `yaml:"pre_script"`
+	PostScript string   `yaml:"post_script"`
+	Env        []string `yaml:"env"`
+}
+
 type Test struct {
 	Depends string   `yaml:"depends"`
 	Verbose bool     `yaml:"verbose"`
@@ -29,8 +36,4 @@ type OtherCommand struct {
 	Description string `yaml:"description"`
 	Command     string `yaml:"cmd"`
 	Depends     string `yaml:"depends"`
-}
-
-type Install struct {
-	//TODO
 }

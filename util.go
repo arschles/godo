@@ -3,6 +3,8 @@ package main
 import (
 	"os/exec"
 	"strings"
+
+	"github.com/arschles/gocons/log"
 )
 
 func cmdStr(cmd *exec.Cmd) string {
@@ -15,4 +17,19 @@ func cmdStr(cmd *exec.Cmd) string {
 
 func envStr(cmd *exec.Cmd) string {
 	return strings.Join(cmd.Env, ":")
+}
+
+// execOrDie prints the command before executing it, executes it and returns its output.
+// if the command failed, calls log.Die with a helpful error message
+func runOrDie(cmd *exec.Cmd, env []string) []byte {
+	cmd.Env = env
+
+	log.Info(cmdStr(cmd))
+	log.Debug("Env: %s", envStr(cmd))
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Die(err.Error())
+	}
+	return out
 }

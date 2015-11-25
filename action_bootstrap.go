@@ -13,17 +13,9 @@ func bootstrap(c *cli.Context) {
 	if err != nil {
 		log.Die("error getting consfile [%s]", err)
 	}
-	for i, str := range consfile.Bootstrap.Commands {
+	for _, str := range consfile.Bootstrap.Commands {
 		cmd := exec.Command(str)
-		cmd.Env = os.Environ()
-
-		log.Info(cmdStr(cmd))
-		log.Debug("Env: %s", envStr(cmd))
-
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			log.Die("error running command %d, stopping (%s)", i+1, err)
-		}
+		out := runOrDie(cmd, os.Environ())
 		log.Info(string(out))
 	}
 }

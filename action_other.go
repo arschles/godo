@@ -34,13 +34,7 @@ func other(c *cli.Context) {
 		log.Die("no command specified for %s", otherName)
 	}
 	cmd := exec.Command(otherCmd.Command)
-	cmd.Env = os.Environ()
-	log.Info(cmdStr(cmd))
-	log.Debug("Env: %s", envStr(cmd))
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Die("error running command %s (%s)", otherCmd.Command, err)
-	}
+	out := runOrDie(cmd, os.Environ())
 	log.Info(string(out))
 
 }

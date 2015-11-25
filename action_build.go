@@ -19,19 +19,12 @@ func build(c *cli.Context) {
 		args = append(args, consfile.Build.Output)
 	}
 	cmd := exec.Command("go", args...)
-	cmd.Env = os.Environ()
-	for _, envStr := range consfile.Build.Env {
-		cmd.Env = append(cmd.Env, envStr)
-	}
+	env := os.Environ()
 	cmd.Dir = "" // force using the current working directory
-
-	log.Info(cmdStr(cmd))
-	log.Debug("Env: %s", envStr(cmd))
-
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Die(string(out))
+	for _, envStr := range consfile.Build.Env {
+		env = append(env, envStr)
 	}
+	out := runOrDie(cmd, env)
 	if len(out) == 0 {
 		log.Info("done")
 	} else {
