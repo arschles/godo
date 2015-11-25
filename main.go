@@ -36,6 +36,13 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
+			Name:        "targets",
+			Aliases:     []string{"tgt"},
+			Usage:       "list all the targets in this projects",
+			Description: "This command will print a list of all targets in the build file (including builtins), along with a short description of each",
+			Action:      targets,
+		},
+		{
 			Name:        "build",
 			Aliases:     []string{"bld"},
 			Usage:       "build the project",
