@@ -8,10 +8,26 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const defaultConsFileName = "gocons.yaml"
+const (
+	defaultConsFileNameYaml = "gocons.yaml"
+	defaultConsfileNameYml  = "gocons.yml"
+)
+
+func getConsfileBytes() ([]byte, error) {
+	b, err := ioutil.ReadFile(defaultConsFileNameYaml)
+	if err == nil {
+		return b, nil
+	}
+	b, err = ioutil.ReadFile(defaultConsfileNameYml)
+	if err == nil {
+		return b, nil
+	}
+	return nil, err
+
+}
 
 func getConsfile() (*Consfile, error) {
-	b, err := ioutil.ReadFile(defaultConsFileName)
+	b, err := getConsfileBytes()
 	if err != nil {
 		return nil, err
 	}
