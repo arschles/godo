@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os/exec"
 	"strings"
 
@@ -29,7 +30,14 @@ func runOrDie(cmd *exec.Cmd, env []string) []byte {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Die(err.Error())
+		var s string
+		if len(out) > 0 {
+			s += fmt.Sprintf("%s\n", string(out))
+		}
+		if err != nil {
+			s += err.Error()
+		}
+		log.Die(s)
 	}
 	return out
 }
