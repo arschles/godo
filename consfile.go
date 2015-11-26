@@ -1,39 +1,44 @@
 package main
 
+import (
+	"io/ioutil"
+
+	"github.com/arschles/gocons/log"
+	"gopkg.in/yaml.v2"
+)
+
+const defaultConsFileName = "gocons.yaml"
+
+func getConsfile() (*Consfile, error) {
+	b, err := ioutil.ReadFile(defaultConsFileName)
+	if err != nil {
+		return nil, err
+	}
+	f := &Consfile{}
+	if err := yaml.Unmarshal(b, f); err != nil {
+		return nil, err
+	}
+	return f, nil
+}
+
+func getConsfileOrDie() *Consfile {
+	consfile, err := getConsfile()
+	if err != nil {
+		log.Die("error getting consfile [%s]", err)
+		return nil
+	}
+	return consfile
+}
+
 type Consfile struct {
-	Bootstrap     *Bootstrap     `yaml:"bootstrap"`
-	Build         *Build         `yaml:"build"`
-	Test          *Test          `yaml:"test"`
-	Install       *Install       `yaml:"install"`
-	OtherCommands []OtherCommand `yaml:"others"`
+	Version int      `yaml:"version"`
+	Plugins []string `yaml:"repos"`
+	Targets []Target `yaml:"targets"`
 }
 
-type Bootstrap struct {
-	Commands []string `yaml:"commands"`
-}
-
-type Build struct {
-	Depends string   `yaml:"depends"`
-	Output  string   `yaml:"output"`
-	Env     []string `yaml:"env"`
-}
-
-type Install struct {
-	Depends    string   `yaml:"depends"`
-	PreScript  string   `yaml:"pre_script"`
-	PostScript string   `yaml:"post_script"`
-	Env        []string `yaml:"env"`
-}
-
-type Test struct {
-	Depends string   `yaml:"depends"`
-	Verbose bool     `yaml:"verbose"`
-	Paths   []string `yaml:"paths"`
-}
-
-type OtherCommand struct {
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
-	Command     string `yaml:"cmd"`
-	Depends     string `yaml:"depends"`
+type Target struct {
+	Name        string   `yaml:"name"`
+	Description string   `yaml:"description"`
+	Depends     string   `yaml:"depends"`
+	Commands    []string `yaml:"commands"`
 }

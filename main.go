@@ -1,27 +1,11 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 
 	"github.com/arschles/gocons/log"
 	"github.com/codegangsta/cli"
-	"gopkg.in/yaml.v2"
 )
-
-const defaultConsFileName = "gocons.yaml"
-
-func getConsfile() (*Consfile, error) {
-	b, err := ioutil.ReadFile(defaultConsFileName)
-	if err != nil {
-		return nil, err
-	}
-	f := &Consfile{}
-	if err := yaml.Unmarshal(b, f); err != nil {
-		return nil, err
-	}
-	return f, nil
-}
 
 func main() {
 	app := cli.NewApp()
@@ -43,31 +27,11 @@ func main() {
 			Action:      targets,
 		},
 		{
-			Name:        "build",
-			Aliases:     []string{"b"},
-			Usage:       "build the project",
-			Description: "Build code according to the 'build:' directive in the consfile.",
-			Action:      build,
-		},
-		{
-			Name:        "bootstrap",
-			Usage:       "bootstrap the project",
-			Description: "Bootstrap the project. Generally, you'll only have to do this once after you first clone the project.",
-			Action:      bootstrap,
-		},
-		{
-			Name:        "other",
-			Aliases:     []string{"oth"},
-			Usage:       "execute a command listed under 'other'",
-			Description: "This command will run a command specified under 'other'",
-			Action:      other,
-		},
-		{
-			Name:        "install",
-			Aliases:     []string{"i"},
-			Usage:       "install gocons",
-			Description: "Install gocons using 'go install'",
-			Action:      install,
+			Name:        "run",
+			Aliases:     []string{"r"},
+			Usage:       "run a target",
+			Description: "Run a target. You can list all targets by running 'gocons targets'",
+			Action:      run,
 		},
 	}
 
