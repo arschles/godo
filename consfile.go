@@ -55,11 +55,15 @@ type Consfile struct {
 }
 
 type Env struct {
-	Name string `yaml:"name"`
-	Val  string `yaml:"val"`
+	Name    string `yaml:"name"`
+	Val     string `yaml:"val"`
+	Default string `yaml:"default"`
 }
 
 func (e Env) String() string {
+	if e.Val == "" {
+		return fmt.Sprintf("%s=%s", e.Name, e.Default)
+	}
 	return fmt.Sprintf("%s=%s", e.Name, e.Val)
 }
 
