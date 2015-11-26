@@ -31,7 +31,7 @@ func run(c *cli.Context) {
 		}
 		cmdSpl := strings.Split(cmd, " ")
 		cmd := exec.Command(cmdSpl[0], cmdSpl[1:]...)
-		out := runOrDie(cmd, os.Environ())
+		out := runOrDie(cmd, append(os.Environ(), Envs(consfile.Envs).Strings()...))
 		if len(out) > 0 {
 			log.Info(string(out))
 		}
