@@ -11,3 +11,7 @@ Targets can depend on each other (like in Make) and can be parameterized by envi
 # Plugins
 
 In addition to targets, Canta also provides _plugins_. A plugin is simply a collection of one or more targets that can be added to your project with the `canta plugin add` command. Plugins are stored in the `.canta/plugins` directory in the current working directory.
+
+# CI Server
+
+Canta can be run locally, but since all targets run exclusively in docker containers, they're portable and consistent. Canta can also run as a server that can fetch your code, run the targets that you want it to, and report on the output of each.
