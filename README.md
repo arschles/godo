@@ -4,9 +4,9 @@ Canta is a build and CI system primarily for Go projects. It provides a full env
 
 # Targets
 
-Like [GNU Make](https://www.gnu.org/software/make/), canta's building blocks are _targets_. Each target defined one piece of work that accomplishes part of the build. A target executes one or more commands inside a Docker container running the image of your choice. Targets can be parameterized by environment variables, and they can depend on each other.
+Like [GNU Make](https://www.gnu.org/software/make/), canta's building blocks are _targets_. Each target defined one piece of work that accomplishes part of the build. A target executes one or more commands inside a Docker container running the image of your choice. All targets are defined in a `canta.yml` or `canta.yaml` file in the current directory.
 
-All targets are defined in a `canta.yml` or `canta.yaml` file in the current directory.
+Targets can depend on each other (like in Make) and can be parameterized by environment variables.
 
 # Plugins
 
