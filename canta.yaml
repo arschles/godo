@@ -1,0 +1,54 @@
+version: 1
+plugins:
+vars:
+  - name: DockerRepo
+    default: quay.io
+  - name: DockerOrg
+    default: arschles
+  - name: DockerImage
+    default: canta
+  - name: DockerVersion
+    default: 1.0
+  - name: DockerImage
+    value: {{trailing_slash .DockerRepo}}{{.DockerOrg}}/{{.DockerImage}}:{{.DockerVersion}}
+  - name: DockerHost
+    env: DOCKER_HOST
+    default: /var/run/docker.sock
+targets:
+  - name: bootstrap
+    description: "bootstrap the project. you'll usually only need to run this once for a checkout"
+    image: quay.io/deis/go-dev:0.2.0
+    commands:
+      - glide install
+  - name: build
+    description: "build using 'go build'"
+    image: quay.io/deis/go-dev:0.2.0
+    depends:
+      target: bootstrap
+      optional: true
+    commands:
+      - go build -o canta
+  - name: docker-build
+    description: "build a docker image"
+    image: ubuntu-debootstrap:14.04
+    volumes:
+      host: {{.DockerHost}}
+      container: /var/run/docker.sock
+    envs:
+      - name: DOCKER_HOST
+        value: /var/run/docker.sock
+    depends:
+      target: build
+      optional: true
+    commands:
+      - docker build -t {{.DockerImage}} .
+  - name: docker-push
+    image: ubuntu-debootstrap:14.04
+    volumes:
+      host: {{env "DOCKER_HOST"}}
+      container: /var/run/docker.sock
+    depends:
+      target: docker-build
+      optional: true
+    commands:
+      - docker push {{.DockerImage}}
