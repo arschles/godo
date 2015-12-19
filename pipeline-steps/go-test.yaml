@@ -1,18 +1,16 @@
 version: 0.0.1
 image: quay.io/deis/go-dev:0.3.0
-command: go build -o {{.OutDir}}
+command: go test {{.Packages}}
 params:
-  - name: Out
-    description: The end location of the go binary
+  - name: Packages
+    description: The packages to test
   - name: VendorExperiment
     description: See https://docs.google.com/document/d/1Bz5-UB7g2uPBdOx-rw5t9MxJwkfpx90cqG9AFL0JAYo/edit for a full description
-  - name: CGO
-    default: 0
+    default: 1
 envs:
   - name: GO15VENDOREXPERIMENT
     value: {{.VendorExperiment}}
-  - name: CGO_ENABLED
-    value: {{.CGO}}
+    default: 1
 volumes:
   - host: {{PWD}}
     container: /go/src/github.com/

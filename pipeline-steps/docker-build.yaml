@@ -4,11 +4,8 @@ command: go build -o {{.OutDir}}
 params:
   - name: DOCKER_HOST
     description: The host of the docker container
-    required: true
   - name: DOCKER_TLS_VERIFY
-    required: true
   - name: DOCKER_CERT_PATH
-    required: false
     default: ""
 envs:
   - name: DOCKER_HOST

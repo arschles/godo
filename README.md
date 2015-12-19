@@ -32,8 +32,9 @@ steps:
     version: 0.8.1
   - name: go-build
     version: 1.5.2
+# set up a few pipelines
 pipelines:
-  # the build pipeline builds a go program
+  # build the go program that is in the same working directory as this file
   - name: build
     description: build the program
     image:
@@ -49,6 +50,15 @@ pipelines:
             value: 1
           - name: CGO
             value: 0
+  # test the go package in the same directory as this file, and all sub packages from here too
+  - name: test  
+    description: test the program
+    steps:
+      - name: glide-up
+      - name: go-test
+        params:
+          - name: Packages
+            value: ./...
 ```
 
 Assuming you saved this build file to my.yaml, you can run a build with the following command:
