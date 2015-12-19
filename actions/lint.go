@@ -12,31 +12,43 @@ func Lint(c *cli.Context) {
 	if bfile.Version > BuildFileVersion {
 		log.Err("The build file has a higher version (%d) than this build supports (<= %d)", bfile.Version, BuildFileVersion)
 	}
-	//
-	// for i, env := range buildFile.Envs {
-	// 	if env.Name == "" {
-	// 		log.Err("Environment variable #%d has no name", i)
-	// 	} else if env.Val == "" && env.Default == "" {
-	// 		log.Err("Environment variable #%d (%s) has neither a value nor a default value", i, env.Name)
-	// 	}
-	// }
-	//
-	// names := make(map[string]int)
-	//
-	// for i, target := range buildFile.Targets {
-	// 	if target.Name == "" {
-	// 		log.Err("Target #%d has no name", i)
-	// 		continue
-	// 	}
-	// 	if prevTargetNum, ok := names[target.Name]; ok {
-	// 		log.Err("Target %d uses a name already taken by target %d", i, prevTargetNum)
-	// 	}
-	// 	names[target.Name] = i
-	// 	if target.Description == "" {
-	// 		log.Err("Target '%s' (#%d) has no description", target.Name, i)
-	// 	}
-	// 	if len(target.Commands) == 0 {
-	// 		log.Err("Target '%s' (#%d) has no commands", target.Name, i)
-	// 	}
-	// }
+	for i, v := range bfile.Vars {
+		if v.Default == "" {
+			log.Err("Var %d (%s) doesn't have a default specified. It needs at least a default", i, v.Name)
+		}
+	}
+	for i, step := range bfile.StepIncludes {
+		if step.Name == "" {
+			log.Err("Step include %d doesn't have a name", i)
+			continue
+		}
+		if step.Version == "" {
+			log.Err("Step include %d (%s) doesn't have a version", i, step.Name)
+		}
+	}
+
+	for i, pipeline := range bfile.Pipelines {
+		if err := pipeline.Validate(); err != nil {
+			log.Err("Pipeline %d: %s", i, pipeline.Name, err)
+			continue
+		}
+		for j, step := range pipeline.Steps {
+			if err := step.Validate(); err != nil {
+				log.Err("Pipeline %d (%s), step %d: %s", i, pipeline.Name, j, step.Name, err)
+				continue
+			}
+
+			for z, param := range step.Params {
+				if err := param.Validate(); err != nil {
+					log.Err("Pipeline %d (%s), step %d (%s), param %d: %s", i, pipeline.Name, j, step.Name, z, err)
+					continue
+				}
+			}
+
+		}
+	}
+}
+
+func lintStep(step build.PipelineStep) {
+
 }
