@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/arschles/gocons/log"
+	"github.com/arschles/canta/log"
 	"gopkg.in/yaml.v2"
 )
 
