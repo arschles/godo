@@ -1,4 +1,4 @@
-package main
+package actions
 
 import (
 	"github.com/arschles/gci/build"
@@ -6,12 +6,11 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-func lint(c *cli.Context) {
-	log.Die("TODO")
-	bfile := build.GetFileOrDie(c.GlobalString(flagFile))
+func Lint(c *cli.Context) {
+	bfile := build.GetFileOrDie(c.GlobalString(FlagFile))
 
-	if bfile.Version > buildFileVersion {
-		log.Err("The build file has a higher version (%d) than this build supports (<= %d)", bfile.Version, buildFileVersion)
+	if bfile.Version > BuildFileVersion {
+		log.Err("The build file has a higher version (%d) than this build supports (<= %d)", bfile.Version, BuildFileVersion)
 	}
 	//
 	// for i, env := range buildFile.Envs {

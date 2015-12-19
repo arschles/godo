@@ -1,4 +1,4 @@
-package main
+package actions
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-func pipelines(c *cli.Context) {
-	bfile := build.GetFileOrDie(c.GlobalString(flagFile))
+func Pipelines(c *cli.Context) {
+	bfile := build.GetFileOrDie(c.GlobalString(FlagFile))
 	varMap := bfile.GetVarMap()
 	for _, pipeline := range bfile.Pipelines {
 		descr, err := pipeline.RenderDescription(varMap)

@@ -1,4 +1,4 @@
-package main
+package actions
 
 import (
 	"github.com/arschles/gci/log"
@@ -37,7 +37,7 @@ import (
 // runTarget(consfile, targets, dependencyTarget, visited)
 // }
 
-func run(c *cli.Context) {
+func Run(c *cli.Context) {
 	log.Die("TODO")
 	// consfile := getConsfileOrDie()
 	// tgtName := c.Args().First()
