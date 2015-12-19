@@ -22,8 +22,8 @@ func Lint(c *cli.Context) {
 			log.Err("Step include %d doesn't have a name", i)
 			continue
 		}
-		if step.Version == "" {
-			log.Err("Step include %d (%s) doesn't have a version", i, step.Name)
+		if step.Path == "" {
+			log.Err("Step include %d (%s) doesn't have a path", i, step.Name)
 		}
 	}
 

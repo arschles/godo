@@ -29,9 +29,9 @@ vars:
 # define what pipeline steps you'll need
 steps:
   - name: glide-up
-    version: 0.8.1
+    path: pipeline-steps
   - name: go-build
-    version: 1.5.2
+    version: pipeline-steps
 # set up a few pipelines
 pipelines:
   # build the go program that is in the same working directory as this file
