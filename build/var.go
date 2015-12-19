@@ -16,4 +16,4 @@ func (v Var) GetValue() string {
 	return v.Default
 }
 
-type VarMap map[string]Var
+type VarMap map[string]string

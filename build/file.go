@@ -53,3 +53,11 @@ type File struct {
 	StepIncludes []StepInclude `yaml:"steps"`
 	Pipelines    []Pipeline    `yaml:"pipelines"`
 }
+
+func (f File) GetVarMap() VarMap {
+	ret := make(map[string]string)
+	for _, v := range f.Vars {
+		ret[v.Name] = v.GetValue()
+	}
+	return ret
+}
