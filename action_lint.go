@@ -1,17 +1,18 @@
 package main
 
 import (
+	"github.com/arschles/gci/build"
 	"github.com/arschles/gci/log"
 	"github.com/codegangsta/cli"
 )
 
 func lint(c *cli.Context) {
 	log.Die("TODO")
-	// buildFile := config.GetFileOrDie(c.GlobalString(flagFile))
-	//
-	// if buildFile.Version > buildFileVersion {
-	// 	log.Err("The build file has a higher version (%d) than this build supports (<= %d)", buildFile.Version, buildFileVersion)
-	// }
+	bfile := build.GetFileOrDie(c.GlobalString(flagFile))
+
+	if bfile.Version > buildFileVersion {
+		log.Err("The build file has a higher version (%d) than this build supports (<= %d)", bfile.Version, buildFileVersion)
+	}
 	//
 	// for i, env := range buildFile.Envs {
 	// 	if env.Name == "" {
