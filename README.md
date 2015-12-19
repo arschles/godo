@@ -37,7 +37,6 @@ pipelines:
   # build the go program that is in the same working directory as this file
   - name: build
     description: build the program
-    image:
     steps:
       # first run the glide-up step
       - name: glide-up

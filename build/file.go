@@ -1,4 +1,4 @@
-package config
+package build
 
 import (
 	"fmt"
@@ -9,15 +9,15 @@ import (
 )
 
 const (
-	defaultFileNameYaml = "gocons.yaml"
-	defaultFileNameYml  = "gocons.yml"
+	defaultFileNameYaml = "canta.yaml"
+	defaultFileNameYml  = "canta.yml"
 )
 
-// GetFile attempts to get and decode the CantaFile at name. If name is empty,
+// GetFile attempts to get and decode the File at name. If name is empty,
 // tries defaultFileNameYaml and then defaultFileNameYml. If no file at name exists,
 // or name was empty and neither defaultFileNameYaml nor defaultFileNameYml exists,
 // returns ErrNoFile
-func GetFile(name string) (*CantaFile, error) {
+func GetFile(name string) (*File, error) {
 	if name == "" {
 		cf, err := GetFile(defaultFileNameYaml)
 		if err == nil {
@@ -33,14 +33,15 @@ func GetFile(name string) (*CantaFile, error) {
 	if err != nil {
 		return nil, err
 	}
-	cf := &CantaFile{}
+	cf := &File{}
 	if err := yaml.Unmarshal(b, cf); err != nil {
 		return nil, err
 	}
 	return cf, nil
 }
 
-func GetFileOrDie(name string) *CantaFile {
+// GetFileOrDie calls GetFile and if it returned an error, logs and exits
+func GetFileOrDie(name string) *File {
 	cf, err := GetFile(name)
 	if err != nil {
 		log.Die("build file not found (%s)", err)
@@ -49,24 +50,9 @@ func GetFileOrDie(name string) *CantaFile {
 	return cf
 }
 
-type CantaFile struct {
-	Version int      `yaml:"version"`
-	Plugins []Plugin `yaml:"plugins"`
-	Vars    []Var    `yaml:"vars"`
-	Targets []Target `yaml:"targets"`
-}
-
-type Plugin struct {
-}
-
-type Var struct {
-	Name    string `yaml:"name"`
-	Default string `yaml:"default"`
-	Env     string `yaml:"env"`
-	Value   string `yaml:"value"`
-}
-
-type Target struct {
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
+type File struct {
+	Version      int           `yaml:"version"`
+	Vars         []Var         `yaml:"vars"`
+	StepIncludes []StepInclude `yaml:"steps"`
+	Pipelines    []Pipeline    `yaml:"pipelines"`
 }
