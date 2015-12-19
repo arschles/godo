@@ -9,3 +9,5 @@ import:
   version: cc4f2986014fdd1f2e7800b3c082af17cad28db2
   subpackages:
   - /color
+- package: github.com/arschles/assert
+- package: code.google.com/p/go-uuid/uuid
