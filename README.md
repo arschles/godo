@@ -1,17 +1,96 @@
 # canta
 
-Canta is a build and CI system primarily for Go projects. It provides a full environment for building, testing, serving and doing other tasks during your development cycle, all within docker containers.
+Canta is a build and CI system primarily for Go projects. It does all of its work inside a Docker container, so builds stay consistent and you don't have to set anything up on your machine except docker.
 
-# Targets
+# Pipelines
 
-Like [GNU Make](https://www.gnu.org/software/make/), canta's building blocks are _targets_. Each target defined one piece of work that accomplishes part of the build. A target executes one or more commands inside a Docker container running the image of your choice. All targets are defined in a `canta.yml` or `canta.yaml` file in the current directory.
+Like [wercker](http://wercker.com), you tell canta what to do by defining _pipelines_. Each pipeline is made up of 1 or more _steps_.
 
-Targets can depend on each other (like in Make) and can be parameterized by environment variables.
+# Build File
 
-# Plugins
+You specify one or more pipelines in a YAML file called the build file. Each pipeline uses the steps that you've decided to import.
 
-In addition to targets, Canta also provides _plugins_. A plugin is simply a collection of one or more targets that can be added to your project with the `canta plugin add` command. Plugins are stored in the `.canta/plugins` directory in the current working directory.
+```yaml
+version: 0.0.1
+# a build file can define variables to be used later in the file.
+# variables names must match the following regex: [a-zA-Z0-9_]+.
+# all variables are available for use in the task definitions below
+vars:
+  # each variable has a default, but can be overridden by an environment variable
+  - name: Version
+    env: MYAPP_VERSION
+    default: 0.0.2
+  # variables without an 'env' are constant
+  - name: AppName
+    default: my-app
+  - name: DockerHost
+    env: DOCKER_HOST
+    default: /var/run/docker.sock
+# define what pipeline steps you'll need
+steps:
+  - name: glide-up
+    version: 0.8.1
+  - name: go-build
+    version: 1.5.2
+# set up a few pipelines
+pipelines:
+  # build the go program that is in the same working directory as this file
+  - name: build
+    description: build the program
+    steps:
+      # first run the glide-up step
+      - name: glide-up
+      # then run the build
+      - name: go-build
+        params:
+          - name: Out
+            value: {{.AppName}}.{{.Version}}
+          - name: VendorExperiment
+            value: 1
+          - name: CGO
+            value: 0
+  # test the go package in the same directory as this file, and all sub packages from here too
+  - name: test  
+    description: test the program
+    steps:
+      - name: glide-up
+      - name: go-test
+        params:
+          - name: Packages
+            value: ./...
+```
+
+Assuming you saved this build file to my.yaml, you can run a build with the following command:
+
+```console
+canta -f my.yaml run build
+```
+
+Note that canta looks for canta.yaml in the current working directory by default.
+
+
+# Building Your Own Steps
+
+A pipeline step is basically a manifest file that tells canta how to run a docker container. It contains:
+
+- A version (for canta forward compatibility)
+- A Docker image name
+- A command to run in the container
+- A list of parameters that must be passed from a build file
+- A list of volume mounts that canta should make when running the container
+- A list of environment variables
+
+Here's a sample step manifest file:
+
+```yaml
+version: 0.0.1
+image: quay.io/deis/go-dev:0.3.0
+command: glide up
+volumes:
+  - host: {{.PWD}}
+    container: /pwd
+```
 
 # CI Server
 
-Canta can be run locally, but since all targets run exclusively in docker containers, they're portable and consistent. Canta can also run as a server that can fetch your code, run the targets that you want it to, and report on the output of each.
+TODO: this CI server will download some code and execute one or more pipelines on it.

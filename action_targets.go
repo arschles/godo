@@ -1,17 +1,18 @@
 package main
 
 import (
+	"github.com/arschles/canta/build"
 	"github.com/arschles/canta/log"
 	"github.com/codegangsta/cli"
 )
 
 func targets(c *cli.Context) {
-	consfile := getConsfileOrDie()
-	for _, target := range consfile.Targets {
-		descr := target.Description
+	buildFile := build.GetFileOrDie(c.GlobalString(flagFile))
+	for _, pipeline := range buildFile.Pipelines {
+		descr := pipeline.Description
 		if descr == "" {
 			descr = "[no description]"
 		}
-		log.Msg("%s - %s", target.Name, descr)
+		log.Msg("%s - %s", pipeline.Name, descr)
 	}
 }
