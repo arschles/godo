@@ -8,7 +8,9 @@ import (
 )
 
 const (
-	consfileVersion = 1
+	buildFileVersion = 1
+	flagDebug        = "debug"
+	flagFile         = "file"
 )
 
 func main() {
@@ -17,8 +19,12 @@ func main() {
 	app.Usage = "gocons is a Makefile replacement for Go projects"
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
-			Name:  "debug",
+			Name:  flagDebug,
 			Usage: "Enable verbose debugging output",
+		},
+		cli.StringFlag{
+			Name:  flagFile,
+			Usage: "Specify the build file to use",
 		},
 	}
 
@@ -47,7 +53,7 @@ func main() {
 	}
 
 	app.Before = func(c *cli.Context) error {
-		log.IsDebugging = c.Bool("debug")
+		log.IsDebugging = c.Bool(flagDebug)
 		return nil
 	}
 
