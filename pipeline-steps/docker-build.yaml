@@ -1,0 +1,24 @@
+version: 0.0.1
+image: quay.io/canta-step-images/alpine-docker:0.0.1
+command: go build -o {{.OutDir}}
+params:
+  - name: DOCKER_HOST
+    description: The host of the docker container
+    required: true
+  - name: DOCKER_TLS_VERIFY
+    required: true
+  - name: DOCKER_CERT_PATH
+    required: false
+    default: ""
+envs:
+  - name: DOCKER_HOST
+    value: {{.DOCKER_HOST}}
+  - name: DOCKER_TLS_VERIFY
+    value: {{.DOCKER_TLS_VERIFY}}
+  - name: DOCKER_CERT_PATH
+    value: /dockercerts
+volumes:
+  - host: {{.DOCKER_CERT_PATH}}
+    container: /dockercerts
+  - host: {{PWD}}
+    container: /pwd
