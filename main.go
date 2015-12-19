@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	buildFileVersion = 1
+	buildFileVersion = "0.0.1"
 	flagDebug        = "debug"
 	flagFile         = "file"
 )
@@ -30,11 +30,11 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:        "targets",
-			Aliases:     []string{"t"},
-			Usage:       "list all the targets in this projects",
-			Description: "This command will print a list of all targets in the build file (including builtins), along with a short description of each",
-			Action:      targets,
+			Name:        "pipelines",
+			Aliases:     []string{"p"},
+			Usage:       "list all the pipelines in this project",
+			Description: "This command will print a list of all of the pipelines defined in the build file",
+			Action:      pipelines,
 		},
 		{
 			Name:        "run",
