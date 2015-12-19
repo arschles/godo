@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/arschles/canta/log"
+	"github.com/arschles/gci/log"
 	"gopkg.in/yaml.v2"
 )
 
 const (
-	defaultFileNameYaml = "canta.yaml"
-	defaultFileNameYml  = "canta.yml"
+	defaultFileNameYaml = "gci.yaml"
+	defaultFileNameYml  = "gci.yml"
 )
 
 // GetFile attempts to get and decode the File at name. If name is empty,

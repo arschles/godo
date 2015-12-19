@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/arschles/canta/log"
+	"github.com/arschles/gci/log"
 	"github.com/codegangsta/cli"
 )
 

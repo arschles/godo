@@ -1,5 +1,5 @@
 version: 0.0.1
-image: quay.io/canta-step-images/alpine-docker:0.0.1
+image: quay.io/gci-step-images/alpine-docker:0.0.1
 command: go build -o {{.OutDir}}
 params:
   - name: DOCKER_HOST

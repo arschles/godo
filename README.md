@@ -1,10 +1,10 @@
-# canta
+# GCI
 
-Canta is a build and CI system primarily for Go projects. It does all of its work inside a Docker container, so builds stay consistent and you don't have to set anything up on your machine except docker.
+GCI (**G**o **C**ontinuous **I**ntegration) is a build and CI system primarily for Go projects. It does all of its work inside a Docker container, so builds stay consistent and you don't have to set anything up on your machine except docker.
 
 # Pipelines
 
-Like [wercker](http://wercker.com), you tell canta what to do by defining _pipelines_. Each pipeline is made up of 1 or more _steps_.
+Like [wercker](http://wercker.com), you tell gci what to do by defining _pipelines_. Each pipeline is made up of 1 or more _steps_.
 
 # Build File
 
@@ -63,21 +63,21 @@ pipelines:
 Assuming you saved this build file to my.yaml, you can run a build with the following command:
 
 ```console
-canta -f my.yaml run build
+gci -f my.yaml run build
 ```
 
-Note that canta looks for canta.yaml in the current working directory by default.
+Note that gci looks for gci.yaml in the current working directory by default.
 
 
 # Building Your Own Steps
 
-A pipeline step is basically a manifest file that tells canta how to run a docker container. It contains:
+A pipeline step is basically a manifest file that tells gci how to run a docker container. It contains:
 
-- A version (for canta forward compatibility)
+- A version (for gci forward compatibility)
 - A Docker image name
 - A command to run in the container
 - A list of parameters that must be passed from a build file
-- A list of volume mounts that canta should make when running the container
+- A list of volume mounts that gci should make when running the container
 - A list of environment variables
 
 Here's a sample step manifest file:
