@@ -15,8 +15,8 @@ const (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "gocons"
-	app.Usage = "gocons is a Makefile replacement for Go projects"
+	app.Name = "gci"
+	app.Usage = "gci is a build and CI tool for Go projects"
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  flagDebug,
@@ -40,7 +40,7 @@ func main() {
 			Name:        "run",
 			Aliases:     []string{"r"},
 			Usage:       "run a target",
-			Description: "You can list all target names and descriptions by running 'gocons targets'",
+			Description: "You can list all target names and descriptions by running 'gci targets'",
 			Action:      run,
 		},
 		{
