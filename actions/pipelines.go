@@ -3,7 +3,7 @@ package actions
 import (
 	"fmt"
 
-	"github.com/arschles/gci/build"
+	"github.com/arschles/gci/files/build"
 	"github.com/arschles/gci/log"
 	"github.com/codegangsta/cli"
 )

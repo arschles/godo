@@ -1,7 +1,7 @@
 package actions
 
 import (
-	"github.com/arschles/gci/build"
+	"github.com/arschles/gci/files/build"
 	"github.com/arschles/gci/log"
 	"github.com/codegangsta/cli"
 )
