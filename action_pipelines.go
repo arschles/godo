@@ -6,9 +6,9 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-func targets(c *cli.Context) {
-	buildFile := build.GetFileOrDie(c.GlobalString(flagFile))
-	for _, pipeline := range buildFile.Pipelines {
+func pipelines(c *cli.Context) {
+	bfile := build.GetFileOrDie(c.GlobalString(flagFile))
+	for _, pipeline := range bfile.Pipelines {
 		descr := pipeline.Description
 		if descr == "" {
 			descr = "[no description]"

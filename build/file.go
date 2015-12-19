@@ -1,7 +1,6 @@
 package build
 
 import (
-	"fmt"
 	"io/ioutil"
 
 	"github.com/arschles/gci/log"
@@ -18,23 +17,21 @@ const (
 // or name was empty and neither defaultFileNameYaml nor defaultFileNameYml exists,
 // returns ErrNoFile
 func GetFile(name string) (*File, error) {
-	if name == "" {
-		cf, err := GetFile(defaultFileNameYaml)
+	var fileBytes []byte
+	var err error
+	fileNames := []string{name, defaultFileNameYaml, defaultFileNameYml}
+	for _, fileName := range fileNames {
+		b, err := ioutil.ReadFile(fileName)
 		if err == nil {
-			return cf, nil
+			fileBytes = b
+			break
 		}
-		cf, err = GetFile(defaultFileNameYml)
-		if err == nil {
-			return cf, nil
-		}
-		return nil, fmt.Errorf("neither %s nor %s exists", defaultFileNameYaml, defaultFileNameYml)
 	}
-	b, err := ioutil.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
 	cf := &File{}
-	if err := yaml.Unmarshal(b, cf); err != nil {
+	if err := yaml.Unmarshal(fileBytes, cf); err != nil {
 		return nil, err
 	}
 	return cf, nil
@@ -44,14 +41,14 @@ func GetFile(name string) (*File, error) {
 func GetFileOrDie(name string) *File {
 	cf, err := GetFile(name)
 	if err != nil {
-		log.Die("build file not found (%s)", err)
+		log.Die(err.Error())
 		return nil
 	}
 	return cf
 }
 
 type File struct {
-	Version      int           `yaml:"version"`
+	Version      string        `yaml:"version"`
 	Vars         []Var         `yaml:"vars"`
 	StepIncludes []StepInclude `yaml:"steps"`
 	Pipelines    []Pipeline    `yaml:"pipelines"`
