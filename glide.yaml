@@ -11,3 +11,5 @@ import:
   - /color
 - package: github.com/arschles/assert
 - package: code.google.com/p/go-uuid/uuid
+- package: github.com/fsouza/go-dockerclient
+- package: code.google.com/p/go-uuid/uuid

@@ -25,6 +25,13 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
+			Name:        "build",
+			Aliases:     []string{"b"},
+			Usage:       "Build your project",
+			Description: "This command will build your code from the current working directory",
+			Action:      actions.Build,
+		},
+		{
 			Name:        "pipelines",
 			Aliases:     []string{"p"},
 			Usage:       "list all the pipelines in this project",
