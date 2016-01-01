@@ -1,6 +1,12 @@
 hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-updated: 2015-12-19T01:18:35.598547478Z
+updated: 2015-12-31T18:08:10.619843632-08:00
 imports:
+- name: code.google.com/p/go-uuid
+  version: 35bc42037350
+  subpackages:
+  - uuid
+- name: github.com/arschles/assert
+  version: 6882f85ccdc7c1822b146d1a6b0c2c48f91b5140
 - name: github.com/aybabtme/rgbterm
   version: c9a1bdb3761d262af7109d6463977046dafde36e
 - name: github.com/codegangsta/cli
@@ -11,10 +17,8 @@ imports:
   - /color
 - name: github.com/mattn/go-colorable
   version: 3dac7b4f76f6e17fb39b768b89e3783d16e237fe
-  repo: https://github.com/mattn/go-colorable
 - name: github.com/mattn/go-isatty
   version: 56b76bdf51f7708750eac80fa38b952bb9f32639
-  repo: https://github.com/mattn/go-isatty
 - name: gopkg.in/yaml.v2
   version: f7716cbe52baa25d2e9b0d0da546fcf909fc16b4
 devImports: []
