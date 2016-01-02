@@ -17,10 +17,6 @@ func main() {
 			Name:  actions.FlagDebug,
 			Usage: "Enable verbose debugging output",
 		},
-		cli.StringFlag{
-			Name:  actions.FlagFile,
-			Usage: "Specify the build file to use",
-		},
 	}
 
 	app.Commands = []cli.Command{
@@ -30,27 +26,6 @@ func main() {
 			Usage:       "Build your project",
 			Description: "This command will build your code from the current working directory",
 			Action:      actions.Build,
-		},
-		{
-			Name:        "pipelines",
-			Aliases:     []string{"p"},
-			Usage:       "list all the pipelines in this project",
-			Description: "This command will print a list of all of the pipelines defined in the build file",
-			Action:      actions.Pipelines,
-		},
-		{
-			Name:        "run",
-			Aliases:     []string{"r"},
-			Usage:       "run a target",
-			Description: "You can list all target names and descriptions by running 'gci targets'",
-			Action:      actions.Run,
-		},
-		{
-			Name:        "lint",
-			Aliases:     []string{"l"},
-			Usage:       "run a linter on the cons file",
-			Description: "The linter checks for a malformed cons file or missing information",
-			Action:      actions.Lint,
 		},
 	}
 
