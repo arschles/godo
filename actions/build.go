@@ -1,67 +1,12 @@
 package actions
 
 import (
-	"fmt"
-	"io"
 	"os"
-	"path/filepath"
 
-	"code.google.com/p/go-uuid/uuid"
 	"github.com/arschles/gci/log"
 	"github.com/codegangsta/cli"
 	docker "github.com/fsouza/go-dockerclient"
 )
-
-const (
-	golangImage     = "golang:1.5.2"
-	containerGopath = "/go"
-)
-
-func createAndStartContainerOpts(gopath, packagePath string) (docker.CreateContainerOptions, docker.HostConfig) {
-	absPwd := filepath.Join(gopath, "src", packagePath)
-	projName := filepath.Base(packagePath)
-
-	mount := docker.Mount{
-		Name:        "pwd",
-		Source:      absPwd,
-		Destination: fmt.Sprintf("%s/src/%s", containerGopath, packagePath),
-		Mode:        "rx",
-	}
-	createOpts := docker.CreateContainerOptions{
-		Name: fmt.Sprintf("gci-build-%s-%s", projName, uuid.New()),
-		Config: &docker.Config{
-			Env:   []string{"GO15VENDOREXPERIMENT=1", "CGO_ENABLED=0", "GOPATH=/go"},
-			Cmd:   []string{"go", "build"},
-			Image: golangImage,
-			Volumes: map[string]struct{}{
-				absPwd: struct{}{},
-			},
-			Mounts: []docker.Mount{mount},
-		},
-		HostConfig: &docker.HostConfig{},
-	}
-	hostConfig := docker.HostConfig{
-		Binds: []string{fmt.Sprintf("%s:%s", mount.Source, mount.Destination)},
-	}
-	return createOpts, hostConfig
-}
-
-// attachContainerOpts returns docker.AttachToContainerOptions with output and error streams turned on
-// as well as logs. the returned io.Reader will output both stdout and stderr
-func attachToContainerOpts(containerID string, stdout io.Writer, stderr io.Writer) docker.AttachToContainerOptions {
-	// var stdoutBuf, stderrBuf bytes.Buffer
-	opts := docker.AttachToContainerOptions{
-		Container:    containerID,
-		OutputStream: stdout,
-		ErrorStream:  stderr,
-		Logs:         true,
-		Stream:       true,
-		Stdout:       true,
-		Stderr:       true,
-	}
-
-	return opts
-}
 
 func Build(c *cli.Context) {
 	gopath := os.Getenv("GOPATH")
@@ -94,6 +39,8 @@ func Build(c *cli.Context) {
 		log.Err("creating container [%s]", err)
 		os.Exit(1)
 	}
+
+	log.Info(dockerCmd(createContainerOpts, hostConfig))
 
 	if err := dockerClient.StartContainer(container.ID, &hostConfig); err != nil {
 		log.Err("starting container [%s]", err)
