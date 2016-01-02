@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -18,11 +17,17 @@ const (
 	containerGopath = "/go"
 )
 
-func createContainerOpts(pathAboveSrc, pathUnderSrc string) docker.CreateContainerOptions {
-	absCwd := filepath.Join(pathAboveSrc, "src", pathUnderSrc)
-	projName := filepath.Base(pathUnderSrc)
+func createAndStartContainerOpts(gopath, packagePath string) (docker.CreateContainerOptions, docker.HostConfig) {
+	absPwd := filepath.Join(gopath, "src", packagePath)
+	projName := filepath.Base(packagePath)
 
-	return docker.CreateContainerOptions{
+	mount := docker.Mount{
+		Name:        "pwd",
+		Source:      absPwd,
+		Destination: fmt.Sprintf("%s/src/%s", containerGopath, packagePath),
+		Mode:        "rx",
+	}
+	createOpts := docker.CreateContainerOptions{
 		Name: fmt.Sprintf("gci-build-%s-%s", projName, uuid.New()),
 		Config: &docker.Config{
 			Env:   []string{"GO15VENDOREXPERIMENT=1", "CGO_ENABLED=0", "GOPATH=/go"},
@@ -31,35 +36,31 @@ func createContainerOpts(pathAboveSrc, pathUnderSrc string) docker.CreateContain
 			Volumes: map[string]struct{}{
 				absPwd: struct{}{},
 			},
-			Mounts: []docker.Mount{
-				docker.Mount{
-					Name:        "pwd",
-					Source:      absPwd,
-					Destination: fmt.Sprintf("%s/src/%s", containerGopath, pathUnderSrc),
-					Mode:        "rx",
-				},
-			},
+			Mounts: []docker.Mount{mount},
 		},
 		HostConfig: &docker.HostConfig{},
 	}
+	hostConfig := docker.HostConfig{
+		Binds: []string{fmt.Sprintf("%s:%s", mount.Source, mount.Destination)},
+	}
+	return createOpts, hostConfig
 }
 
 // attachContainerOpts returns docker.AttachToContainerOptions with output and error streams turned on
 // as well as logs. the returned io.Reader will output both stdout and stderr
-func attachToContainerOpts(containerID string) (docker.AttachToContainerOptions, io.Reader) {
-	r, w := io.Pipe()
+func attachToContainerOpts(containerID string, stdout io.Writer, stderr io.Writer) docker.AttachToContainerOptions {
 	// var stdoutBuf, stderrBuf bytes.Buffer
 	opts := docker.AttachToContainerOptions{
 		Container:    containerID,
-		OutputStream: w,
-		ErrorStream:  w,
+		OutputStream: stdout,
+		ErrorStream:  stderr,
 		Logs:         true,
 		Stream:       true,
 		Stdout:       true,
 		Stderr:       true,
 	}
 
-	return opts, r
+	return opts
 }
 
 func Build(c *cli.Context) {
@@ -75,9 +76,9 @@ func Build(c *cli.Context) {
 		os.Exit(1)
 	}
 
-	srcSpl := strings.Split(cwd, "src")
-	if len(srcSpl) < 2 {
-		log.Err("")
+	pkgPath, err := packagePath(gopath, cwd)
+	if err != nil {
+		log.Err("Error detecting package name [%s]", err)
 		os.Exit(1)
 	}
 
@@ -87,42 +88,51 @@ func Build(c *cli.Context) {
 		os.Exit(1)
 	}
 
-	containerOpts := createContainerOpts(cwd)
-	container, err := dockerClient.CreateContainer(containerOpts)
+	createContainerOpts, hostConfig := createAndStartContainerOpts(gopath, pkgPath)
+	container, err := dockerClient.CreateContainer(createContainerOpts)
 	if err != nil {
 		log.Err("creating container [%s]", err)
 		os.Exit(1)
 	}
 
-	hostConfig := &docker.HostConfig{Binds: []string{fmt.Sprintf("%s:%s", workdir, absPwd)}}
-	if err := dockerCl.StartContainer(container.ID, hostConfig); err != nil {
+	if err := dockerClient.StartContainer(container.ID, &hostConfig); err != nil {
 		log.Err("starting container [%s]", err)
 		os.Exit(1)
 	}
 
-	attachOpts, outputReader := attachToContainerOpts(container.ID)
-	errCh := make(chan error)
+	attachOpts := attachToContainerOpts(container.ID, os.Stdout, os.Stderr)
+	attachErrCh := make(chan error)
 	go func() {
-		if err := dockerCl.AttachToContainer(attachOpts); err != nil {
-			errCh <- err
+		if err := dockerClient.AttachToContainer(attachOpts); err != nil {
+			attachErrCh <- err
 		}
 	}()
 
-	go func(reader io.Reader) {
-		scanner := bufio.NewScanner(reader)
-		for scanner.Scan() {
-			fmt.Fprintf(w, "%s\n", scanner.Text())
-			flusher.Flush()
-		}
-		if err := scanner.Err(); err != nil {
-			fmt.Fprintf(w, "error with scanner in attached container [%s]\n", err)
-		}
-	}(outputReader)
+	waitErrCh := make(chan error)
+	waitCodeCh := make(chan int)
 
-	code, err := dockerClient.WaitContainer(container.ID)
-	if err != nil {
-		log.Errf("waiting for container %s [%s]", container.ID, err)
-		return
+	go func() {
+		code, err := dockerClient.WaitContainer(container.ID)
+		if err != nil {
+			waitErrCh <- err
+			return
+		}
+		waitCodeCh <- code
+	}()
+
+	select {
+	case err := <-attachErrCh:
+		log.Err("Attaching to the build container [%s]", err)
+		os.Exit(1)
+	case err := <-waitErrCh:
+		log.Err("Waiting for the build container to finish [%s]", err)
+		os.Exit(1)
+	case code := <-waitCodeCh:
+		if code != 0 {
+			log.Err("Build exited %d", code)
+			os.Exit(code)
+		} else {
+			log.Info("Success")
+		}
 	}
-
 }
