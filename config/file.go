@@ -1,4 +1,4 @@
-package build
+package config
 
 import (
 	"io/ioutil"
@@ -41,7 +41,7 @@ func Read(name string) (*File, error) {
 func ReadOrDie(name string) *File {
 	cf, err := Read(name)
 	if err != nil {
-		log.Die(err.Error())
+		log.Die("Reading config file %s [%s]", name, err)
 		return nil
 	}
 	return cf
@@ -49,7 +49,19 @@ func ReadOrDie(name string) *File {
 
 type File struct {
 	Version     string      `yaml:"version"`
+	Build       Build       `yaml:"build"`
 	DockerBuild DockerBuild `yaml:"docker-build"`
+}
+
+type Build struct {
+	OutputBinary string `yaml:"output-binary"`
+}
+
+func (b Build) GetOutputBinary(pathBase string) string {
+	if b.OutputBinary == "" {
+		return pathBase
+	}
+	return b.OutputBinary
 }
 
 type DockerBuild struct {
