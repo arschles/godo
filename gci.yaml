@@ -12,6 +12,12 @@ test:
     - .
 docker:
   image-name: quay.io/arschles/gci
+  tag: 0.0.1
   build:
     context:
+      dir: .
+      skip:
+        - vendor
   push:
+    # NOTE: auth not supported yet. see https://github.com/arschles/gci/issues/16
+    auth-file-location: ~/.docker/config.json

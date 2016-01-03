@@ -21,15 +21,8 @@ func (d Docker) GetTag() string {
 }
 
 type DockerBuild struct {
-	DockerfileLocation string `yaml:"dockerfile-location"`
-	ContextPath        string `yaml:"context-path"`
-}
-
-func (d DockerBuild) GetContextPath() string {
-	if d.ContextPath == "" {
-		return "."
-	}
-	return d.ContextPath
+	DockerfileLocation string             `yaml:"dockerfile-location"`
+	Context            DockerBuildContext `yaml:"context"`
 }
 
 func (d DockerBuild) GetDockerfileLocation() string {
@@ -37,6 +30,26 @@ func (d DockerBuild) GetDockerfileLocation() string {
 		return "./Dockerfile"
 	}
 	return d.DockerfileLocation
+}
+
+type DockerBuildContext struct {
+	Directory string   `yaml:"dir"`
+	Skips     []string `yaml:"skip"`
+}
+
+func (d DockerBuildContext) GetDirectory() string {
+	if d.Directory == "" {
+		return "."
+	}
+	return d.Directory
+}
+
+func (d DockerBuildContext) GetSkips() map[string]struct{} {
+	ret := make(map[string]struct{})
+	for _, sk := range d.Skips {
+		ret[sk] = struct{}{}
+	}
+	return ret
 }
 
 type DockerPush struct {
