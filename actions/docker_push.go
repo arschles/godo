@@ -2,6 +2,7 @@ package actions
 
 import (
 	"os"
+	"strings"
 
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/dockutil"
@@ -24,8 +25,37 @@ func DockerPush(c *cli.Context) {
 		OutputStream: os.Stdout,
 	}
 
-	// TODO: support auth (https://github.com/arschles/gci/issues/16)
-	if err := dockerClient.PushImage(pio, docker.AuthConfiguration{}); err != nil {
+	authFileLoc := cfg.Docker.Push.GetAuthFileLocation()
+	authFile, err := os.Open(authFileLoc)
+	if err != nil {
+		log.Err("Reading Docker auth file %s [%s]", authFileLoc, err)
+		os.Exit(1)
+	}
+	defer func() {
+		if err := authFile.Close(); err != nil {
+			log.Err("Closing Docker auth file %s [%s]", authFileLoc, err)
+		}
+	}()
+
+	auths, err := docker.NewAuthConfigurations(authFile)
+	if err != nil {
+		log.Err("Parsing auth file %s [%s]", authFileLoc, err)
+		os.Exit(1)
+	}
+
+	registry := "https://index.docker.io/v1/"
+	spl := strings.Split(pio.Name, "/")
+	if len(spl) == 3 {
+		registry = spl[0]
+	}
+
+	auth, ok := auths.Configs[registry]
+	if !ok {
+		log.Err("Registry %s in your image %s is not in auth file %s ", registry, pio.Name, authFileLoc)
+		os.Exit(1)
+	}
+
+	if err := dockerClient.PushImage(pio, auth); err != nil {
 		log.Err("Pushing Docker image %s [%s]", pio.Name, err)
 		os.Exit(1)
 	}
