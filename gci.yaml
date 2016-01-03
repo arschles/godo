@@ -10,6 +10,8 @@ test:
     - ./tpl/...
     - ./util/...
     - .
-docker-build:
+docker:
   image-name: quay.io/arschles/gci
-  context:
+  build:
+    context:
+  push:
