@@ -24,8 +24,15 @@ func main() {
 			Name:        "build",
 			Aliases:     []string{"b"},
 			Usage:       "Build your project",
-			Description: "This command will build your code from the current working directory",
+			Description: "This command runs the equivalent of 'go build -o $CURRENT_DIR_NAME'",
 			Action:      actions.Build,
+		},
+		{
+			Name:        "test",
+			Aliases:     []string{"t"},
+			Usage:       "Test your project",
+			Description: "This command runs the equivalent of 'go test ./...'",
+			Action:      actions.Test,
 		},
 	}
 
