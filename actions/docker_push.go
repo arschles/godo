@@ -29,5 +29,5 @@ func DockerPush(c *cli.Context) {
 		log.Err("Pushing Docker image %s [%s]", pio.Name, err)
 		os.Exit(1)
 	}
-	log.Info("Success")
+	log.Info("Successfully pushed Docker image %s:%s", pio.Name, pio.Tag)
 }
