@@ -1,47 +1,12 @@
 version: 0.0.1
-# a build file can define variables to be used later in the file.
-# variables names must match the following regex: [a-zA-Z0-9_]+.
-# all variables are available for use in the task definitions below
-vars:
-  # each variable has a default, but can be overridden by an environment variable
-  - name: Version
-    env: MYAPP_VERSION
-    default: 0.0.2
-  # variables without an 'env' are constant
-  - name: AppName
-    default: my-app
-  - name: DockerHost
-    env: DOCKER_HOST
-    default: /var/run/docker.sock
-# define what pipeline steps you'll need
-steps:
-  - name: glide-up
-    path: pipeline-steps
-  - name: go-build
-    path: pipeline-steps
-# set up a few pipelines
-pipelines:
-  # build the go program that is in the same working directory as this file
-  - name: build
-    description: build {{.AppName}}
-    steps:
-      # first run glide up
-      - name: glide-up
-      # then run the build
-      - name: go-build
-        params:
-          - name: Out
-            value: "{{.AppName}}.{{.Version}}"
-          - name: VendorExperiment
-            value: 1
-          - name: CGO
-            value: 0
-  # test the go package in the same directory as this file, and all sub packages from here too
-  - name: test
-    description: test {{.AppName}}
-    steps:
-      - name: glide-up
-      - name: go-test
-        params:
-          - name: Packages
-            value: ./...
+build:
+  output-binary: gci-test
+test:
+  paths:
+    - ./actions/...
+    - ./config/...
+    - ./dockutil/...
+    - ./log/...
+    - ./tpl/...
+    - ./util/...
+    - .

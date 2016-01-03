@@ -6,17 +6,22 @@ import (
 	"path/filepath"
 
 	"code.google.com/p/go-uuid/uuid"
+	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/dockutil"
 	"github.com/arschles/gci/log"
 	"github.com/codegangsta/cli"
 )
 
 func Test(c *cli.Context) {
+	cfg := config.ReadOrDie(c.String(FlagConfigFile))
 	paths := pathsOrDie()
 	dockerClient := dockutil.ClientOrDie()
 	projName := filepath.Base(paths.cwd)
 	name := fmt.Sprintf("gci-test-%s-%s", projName, uuid.New())
-	cmd := []string{"go", "test", "./..."}
+	cmd := []string{"go", "test"}
+	for _, path := range cfg.Test.GetPaths() {
+		cmd = append(cmd, path)
+	}
 
 	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(name, cmd, paths.gopath, paths.pkg)
 	container, err := dockerClient.CreateContainer(createContainerOpts)

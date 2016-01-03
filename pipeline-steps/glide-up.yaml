@@ -1,6 +1,0 @@
-version: 0.0.1
-image: quay.io/deis/go-dev:0.3.0
-command: glide up
-volumes:
-  - host: {{PWD}}
-    container: /pwd

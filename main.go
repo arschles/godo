@@ -17,6 +17,10 @@ func main() {
 			Name:  actions.FlagDebug,
 			Usage: "Enable verbose debugging output",
 		},
+		cli.StringFlag{
+			Name:  actions.FlagConfigFile,
+			Usage: "Specify the name and location of the config file",
+		},
 	}
 
 	app.Commands = []cli.Command{

@@ -1,5 +1,6 @@
 package actions
 
 const (
-	FlagDebug = "debug"
+	FlagDebug      = "debug"
+	FlagConfigFile = "configfile"
 )
