@@ -77,13 +77,20 @@ func (t Test) GetPaths() []string {
 }
 
 type DockerBuild struct {
+	Tag                string `yaml:"tag"`
 	ImageName          string `yaml:"image-name"`
 	DockerfileLocation string `yaml:"dockerfile-location"`
 }
 
+func (d DockerBuild) GetTag() string {
+	if d.Tag == "" {
+		return "latest"
+	}
+	return d.Tag
+}
 func (d DockerBuild) GetDockerfileLocation() string {
 	if d.DockerfileLocation == "" {
-		return "."
+		return "./Dockerfile"
 	}
 	return d.DockerfileLocation
 }

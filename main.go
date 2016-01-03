@@ -38,6 +38,13 @@ func main() {
 			Description: "This command runs the equivalent of 'go test ./...'",
 			Action:      actions.Test,
 		},
+		{
+			Name:        "docker-build",
+			Aliases:     []string{"db"},
+			Usage:       "Build a Docker image for your project",
+			Description: "This command runs the equivalent of 'docker build -t $IMG_NAME $DOCKERFILE_DIR'",
+			Action:      actions.DockerBuild,
+		},
 	}
 
 	app.Before = func(c *cli.Context) error {
