@@ -1,11 +1,14 @@
 package actions
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 
+	"code.google.com/p/go-uuid/uuid"
+	"github.com/arschles/gci/dockutil"
 	"github.com/arschles/gci/log"
 	"github.com/codegangsta/cli"
-	docker "github.com/fsouza/go-dockerclient"
 )
 
 func Build(c *cli.Context) {
@@ -20,6 +23,7 @@ func Build(c *cli.Context) {
 		log.Err("getting current working dir (%s)", err)
 		os.Exit(1)
 	}
+	projName := filepath.Base(cwd)
 
 	pkgPath, err := packagePath(gopath, cwd)
 	if err != nil {
@@ -27,27 +31,25 @@ func Build(c *cli.Context) {
 		os.Exit(1)
 	}
 
-	dockerClient, err := docker.NewClientFromEnv()
-	if err != nil {
-		log.Err("creating new docker client (%s)", err)
-		os.Exit(1)
-	}
+	dockerClient := dockutil.ClientOrDie()
 
-	createContainerOpts, hostConfig := createAndStartContainerOpts(gopath, pkgPath)
+	name := fmt.Sprintf("gci-build-%s-%s", projName, uuid.New())
+	cmd := []string{"go", "build", "-o", projName}
+	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(name, cmd, gopath, pkgPath)
 	container, err := dockerClient.CreateContainer(createContainerOpts)
 	if err != nil {
 		log.Err("creating container [%s]", err)
 		os.Exit(1)
 	}
 
-	log.Info(dockerCmd(createContainerOpts, hostConfig))
+	log.Msg(dockutil.CmdStr(createContainerOpts, hostConfig))
 
 	if err := dockerClient.StartContainer(container.ID, &hostConfig); err != nil {
 		log.Err("starting container [%s]", err)
 		os.Exit(1)
 	}
 
-	attachOpts := attachToContainerOpts(container.ID, os.Stdout, os.Stderr)
+	attachOpts := dockutil.AttachToContainerOpts(container.ID, os.Stdout, os.Stderr)
 	attachErrCh := make(chan error)
 	go func() {
 		if err := dockerClient.AttachToContainer(attachOpts); err != nil {
