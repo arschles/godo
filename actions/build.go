@@ -13,10 +13,10 @@ import (
 )
 
 func Build(c *cli.Context) {
-	config := config.ReadOrDie(c.String(FlagConfigFile))
+	cfg := config.ReadOrDie(c.String(FlagConfigFile))
 	paths := pathsOrDie()
 	projName := filepath.Base(paths.cwd)
-	binary := config.Build.GetOutputBinary(projName)
+	binary := cfg.Build.GetOutputBinary(projName)
 
 	dockerClient := dockutil.ClientOrDie()
 
