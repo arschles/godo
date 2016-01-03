@@ -12,30 +12,14 @@ import (
 )
 
 func Build(c *cli.Context) {
-	gopath := os.Getenv("GOPATH")
-	if gopath == "" {
-		log.Err("GOPATH environment variable not found")
-		os.Exit(1)
-	}
-
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Err("getting current working dir (%s)", err)
-		os.Exit(1)
-	}
-	projName := filepath.Base(cwd)
-
-	pkgPath, err := packagePath(gopath, cwd)
-	if err != nil {
-		log.Err("Error detecting package name [%s]", err)
-		os.Exit(1)
-	}
+	paths := pathsOrDie()
+	projName := filepath.Base(paths.cwd)
 
 	dockerClient := dockutil.ClientOrDie()
 
 	name := fmt.Sprintf("gci-build-%s-%s", projName, uuid.New())
 	cmd := []string{"go", "build", "-o", projName}
-	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(name, cmd, gopath, pkgPath)
+	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(name, cmd, paths.gopath, paths.pkg)
 	container, err := dockerClient.CreateContainer(createContainerOpts)
 	if err != nil {
 		log.Err("creating container [%s]", err)
@@ -50,24 +34,7 @@ func Build(c *cli.Context) {
 	}
 
 	attachOpts := dockutil.AttachToContainerOpts(container.ID, os.Stdout, os.Stderr)
-	attachErrCh := make(chan error)
-	go func() {
-		if err := dockerClient.AttachToContainer(attachOpts); err != nil {
-			attachErrCh <- err
-		}
-	}()
-
-	waitErrCh := make(chan error)
-	waitCodeCh := make(chan int)
-
-	go func() {
-		code, err := dockerClient.WaitContainer(container.ID)
-		if err != nil {
-			waitErrCh <- err
-			return
-		}
-		waitCodeCh <- code
-	}()
+	attachErrCh, waitErrCh, waitCodeCh := dockutil.AttachAndWait(dockerClient, container.ID, attachOpts)
 
 	select {
 	case err := <-attachErrCh:
