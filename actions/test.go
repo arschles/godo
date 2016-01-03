@@ -38,12 +38,13 @@ func Test(c *cli.Context) {
 	}
 
 	attachOpts := dockutil.AttachToContainerOpts(container.ID, os.Stdout, os.Stderr)
-	attachErrCh, waitErrCh, waitCodeCh := dockutil.AttachAndWait(dockerClient, container.ID, attachOpts)
-
-	select {
-	case err := <-attachErrCh:
+	waitCodeCh, waitErrCh, err := dockutil.AttachAndWait(dockerClient, container.ID, attachOpts)
+	if err != nil {
 		log.Err("Attaching to the test container [%s]", err)
 		os.Exit(1)
+	}
+
+	select {
 	case err := <-waitErrCh:
 		log.Err("Waiting for the test container to finish [%s]", err)
 		os.Exit(1)

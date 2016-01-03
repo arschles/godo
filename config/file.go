@@ -48,10 +48,10 @@ func ReadOrDie(name string) *File {
 }
 
 type File struct {
-	Version     string      `yaml:"version"`
-	Build       Build       `yaml:"build"`
-	Test        Test        `yaml:"test"`
-	DockerBuild DockerBuild `yaml:"docker-build"`
+	Version string `yaml:"version"`
+	Build   Build  `yaml:"build"`
+	Test    Test   `yaml:"test"`
+	Docker  Docker `yaml:"docker"`
 }
 
 type Build struct {
@@ -74,16 +74,4 @@ func (t Test) GetPaths() []string {
 		return []string{"./..."}
 	}
 	return t.Paths
-}
-
-type DockerBuild struct {
-	ImageName          string `yaml:"image-name"`
-	DockerfileLocation string `yaml:"dockerfile-location"`
-}
-
-func (d DockerBuild) GetDockerfileLocation() string {
-	if d.DockerfileLocation == "" {
-		return "."
-	}
-	return d.DockerfileLocation
 }
