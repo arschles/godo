@@ -41,6 +41,6 @@ glide up
 GO15VENDOREXPERIMENT=1 go install
 ```
 
-Ensure that you have `$GOPATH/bin` somewhere on your `$PATH` and run `gci build` and start developing!
+Ensure that you have `$GOPATH/bin` somewhere on your `$PATH`, and now you can execute `gci` targets.
 
 When you're ready to write code, simply fork and open a pull request.
