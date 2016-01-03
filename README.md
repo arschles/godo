@@ -38,7 +38,7 @@ Once you ensure that you have both dependencies, simply:
 
 ```console
 glide up
-go install
+GO15VENDOREXPERIMENT=1 go install
 ```
 
 Ensure that you have `$GOPATH/bin` somewhere on your `$PATH` and run `gci build` and start developing!
