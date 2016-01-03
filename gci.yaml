@@ -12,3 +12,4 @@ test:
     - .
 docker-build:
   image-name: quay.io/arschles/gci
+  context:

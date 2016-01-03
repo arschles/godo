@@ -80,6 +80,7 @@ type DockerBuild struct {
 	Tag                string `yaml:"tag"`
 	ImageName          string `yaml:"image-name"`
 	DockerfileLocation string `yaml:"dockerfile-location"`
+	ContextPath        string `yaml:"context-path"`
 }
 
 func (d DockerBuild) GetTag() string {
@@ -88,6 +89,14 @@ func (d DockerBuild) GetTag() string {
 	}
 	return d.Tag
 }
+
+func (d DockerBuild) GetContextPath() string {
+	if d.ContextPath == "" {
+		return "."
+	}
+	return d.ContextPath
+}
+
 func (d DockerBuild) GetDockerfileLocation() string {
 	if d.DockerfileLocation == "" {
 		return "./Dockerfile"
