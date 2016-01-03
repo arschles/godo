@@ -16,7 +16,7 @@ const (
 // tries defaultFileNameYaml and then defaultFileNameYml. If no file at name exists,
 // or name was empty and neither defaultFileNameYaml nor defaultFileNameYml exists,
 // returns ErrNoFile
-func GetFile(name string) (*File, error) {
+func Read(name string) (*File, error) {
 	var fileBytes []byte
 	var err error
 	fileNames := []string{name, defaultFileNameYaml, defaultFileNameYml}
@@ -37,9 +37,9 @@ func GetFile(name string) (*File, error) {
 	return cf, nil
 }
 
-// GetFileOrDie calls GetFile and if it returned an error, logs and exits
-func GetFileOrDie(name string) *File {
-	cf, err := GetFile(name)
+// ReadOrDie calls Read and if it returned an error, logs and exits
+func ReadOrDie(name string) *File {
+	cf, err := Read(name)
 	if err != nil {
 		log.Die(err.Error())
 		return nil
@@ -48,21 +48,18 @@ func GetFileOrDie(name string) *File {
 }
 
 type File struct {
-	Version      string        `yaml:"version"`
-	Vars         []Var         `yaml:"vars"`
-	StepIncludes []StepInclude `yaml:"steps"`
-	Pipelines    []Pipeline    `yaml:"pipelines"`
+	Version     string      `yaml:"version"`
+	DockerBuild DockerBuild `yaml:"docker-build"`
 }
 
-func (f File) GetStepIncludesMap() StepIncludesMap {
-	//TODO
-	return StepIncludesMap(map[string]string{})
+type DockerBuild struct {
+	ImageName          string `yaml:"image-name"`
+	DockerfileLocation string `yaml:"dockerfile-location"`
 }
 
-func (f File) GetVarMap() VarMap {
-	ret := make(map[string]string)
-	for _, v := range f.Vars {
-		ret[v.Name] = v.GetValue()
+func (d DockerBuild) GetDockerfileLocation() string {
+	if d.DockerfileLocation == "" {
+		return "."
 	}
-	return ret
+	return d.DockerfileLocation
 }
