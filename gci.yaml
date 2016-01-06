@@ -1,6 +1,6 @@
 version: 0.0.1
 build:
-  output-binary: gci-test
+  output-binary: gci
 test:
   paths:
     - ./actions/...
