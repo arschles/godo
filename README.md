@@ -29,7 +29,9 @@ The following high level features are planned, but not yet implemented:
 
 ## Development
 
-Writing code for GCI is simple. Since it's a build tool, it can bootstrap itself. The requirements to build the `gci` binary are as follows:
+Writing code for GCI is simple. Since it's a build tool, it can bootstrap itself by running `gci build` in the root of the repo.
+
+Assuming you don't have a `gci` binary available, you can build it with the standard `go` toolchain as well. Here's what you'll need:
 
 - Go 1.5+
 - [Glide](https://github.com/Masterminds/glide) 0.8+
