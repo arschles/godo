@@ -1,6 +1,7 @@
 version: 0.0.1
 build:
   output-binary: gci
+  cross-compile: true
 test:
   paths:
     - ./actions/...

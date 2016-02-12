@@ -7,7 +7,14 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-func CreateAndStartContainerOpts(name string, cmd []string, gopath, packagePath string) (docker.CreateContainerOptions, docker.HostConfig) {
+func CreateAndStartContainerOpts(
+	imageName,
+	containerName string,
+	cmd []string,
+	gopath,
+	packagePath string,
+) (docker.CreateContainerOptions, docker.HostConfig) {
+
 	absPwd := filepath.Join(gopath, "src", packagePath)
 
 	mount := docker.Mount{
@@ -17,11 +24,11 @@ func CreateAndStartContainerOpts(name string, cmd []string, gopath, packagePath 
 		Mode:        "rx",
 	}
 	createOpts := docker.CreateContainerOptions{
-		Name: name,
+		Name: containerName,
 		Config: &docker.Config{
 			Env:   []string{"GO15VENDOREXPERIMENT=1", "CGO_ENABLED=0", "GOPATH=/go"},
 			Cmd:   cmd,
-			Image: golangImage,
+			Image: imageName,
 			Volumes: map[string]struct{}{
 				absPwd: struct{}{},
 			},
