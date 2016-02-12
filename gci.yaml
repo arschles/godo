@@ -19,5 +19,4 @@ docker:
       skip:
         - vendor
   push:
-    # NOTE: auth not supported yet. see https://github.com/arschles/gci/issues/16
     auth-file-location: ~/.docker/config.json
