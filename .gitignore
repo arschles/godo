@@ -26,3 +26,4 @@ example/example
 gci
 vendor
 gci-test
+gci_*

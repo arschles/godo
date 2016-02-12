@@ -23,7 +23,7 @@ func Test(c *cli.Context) {
 		cmd = append(cmd, path)
 	}
 
-	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(name, cmd, paths.gopath, paths.pkg)
+	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(dockutil.GolangImage, name, cmd, paths.gopath, paths.pkg)
 	container, err := dockerClient.CreateContainer(createContainerOpts)
 	if err != nil {
 		log.Err("creating container [%s]", err)

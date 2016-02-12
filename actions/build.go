@@ -22,7 +22,12 @@ func Build(c *cli.Context) {
 
 	name := fmt.Sprintf("gci-build-%s-%s", projName, uuid.New())
 	cmd := []string{"go", "build", "-o", binary}
-	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(name, cmd, paths.gopath, paths.pkg)
+	imgName := dockutil.GolangImage
+	if cfg.Build.CrossCompile {
+		imgName = dockutil.GoxImage
+		cmd = []string{"gox"}
+	}
+	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(imgName, name, cmd, paths.gopath, paths.pkg)
 	container, err := dockerClient.CreateContainer(createContainerOpts)
 	if err != nil {
 		log.Err("creating container [%s]", err)

@@ -56,6 +56,7 @@ type File struct {
 
 type Build struct {
 	OutputBinary string `yaml:"output-binary"`
+	CrossCompile bool   `yaml:"cross-compile"`
 }
 
 func (b Build) GetOutputBinary(pathBase string) string {
