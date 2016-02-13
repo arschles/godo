@@ -7,6 +7,7 @@ const (
 
 type CI struct {
 	Server Server `yaml:"server"`
+	Build  Build  `yaml:"build"`
 }
 
 type Server struct {
