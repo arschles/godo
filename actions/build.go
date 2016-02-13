@@ -27,7 +27,8 @@ func Build(c *cli.Context) {
 		imgName = dockutil.GoxImage
 		cmd = []string{"gox"}
 	}
-	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(imgName, name, cmd, paths.gopath, paths.pkg)
+	env := cfg.Build.Env
+	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(imgName, name, cmd, env, paths.gopath, paths.pkg)
 	container, err := dockerClient.CreateContainer(createContainerOpts)
 	if err != nil {
 		log.Err("creating container [%s]", err)

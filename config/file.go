@@ -55,8 +55,9 @@ type File struct {
 }
 
 type Build struct {
-	OutputBinary string `yaml:"output-binary"`
-	CrossCompile bool   `yaml:"cross-compile"`
+	OutputBinary string   `yaml:"output-binary"`
+	CrossCompile bool     `yaml:"cross-compile"`
+	Env          []string `yaml:"env"`
 }
 
 func (b Build) GetOutputBinary(pathBase string) string {
@@ -68,6 +69,7 @@ func (b Build) GetOutputBinary(pathBase string) string {
 
 type Test struct {
 	Paths []string `yaml:"paths"`
+	Env   []string `yaml:"env"`
 }
 
 func (t Test) GetPaths() []string {

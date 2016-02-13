@@ -1,7 +1,10 @@
 version: 0.0.1
 build:
   output-binary: gci
-  cross-compile: true
+  cross-compile: false
+  env:
+    - GOOS=darwin
+    - GOARCH=amd64
 test:
   paths:
     - ./actions/...
