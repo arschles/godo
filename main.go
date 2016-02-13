@@ -52,6 +52,14 @@ func main() {
 			Description: "This command runs the equivalent of 'docker push $IMG_NAME'",
 			Action:      actions.DockerPush,
 		},
+		{
+			Name:        "server",
+			Aliases:     []string{"srv"},
+			Usage:       "Run the GCI server",
+			Description: "This command runs the GCI server, according to the confi=g file",
+			// TODO: subcommands
+			Action: actions.Server,
+		},
 	}
 
 	app.Before = func(c *cli.Context) error {
