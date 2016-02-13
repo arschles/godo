@@ -3,6 +3,7 @@ package config
 import (
 	"io/ioutil"
 
+	"github.com/arschles/gci/config/ci"
 	"github.com/arschles/gci/log"
 	"gopkg.in/yaml.v2"
 )
@@ -52,6 +53,7 @@ type File struct {
 	Build   Build  `yaml:"build"`
 	Test    Test   `yaml:"test"`
 	Docker  Docker `yaml:"docker"`
+	CI      ci.CI  `yaml:"ci"`
 }
 
 type Build struct {
