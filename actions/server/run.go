@@ -1,18 +1,19 @@
-package actions
+package server
 
 import (
 	"fmt"
 	"net/http"
 
+	"github.com/arschles/gci/actions"
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/log"
 	"github.com/arschles/gci/server/handlers"
 	"github.com/codegangsta/cli"
 )
 
-func Server(c *cli.Context) {
+func Run(c *cli.Context) {
 	mux := http.NewServeMux()
-	cfg := config.ReadOrDie(c.String(FlagConfigFile))
+	cfg := config.ReadOrDie(c.String(actions.FlagConfigFile))
 	mux.Handle("/build", handlers.Build{})
 	hostStr := fmt.Sprintf("%s:%d", cfg.CI.Server.GetHost(), cfg.CI.Server.GetPort())
 	log.Info("Serving GCI on %s", hostStr)
