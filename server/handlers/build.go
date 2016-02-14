@@ -15,18 +15,29 @@ import (
 	"github.com/arschles/gci/log"
 )
 
-type Build struct{}
+const (
+	tempDirPrefix = "gci_server_build"
+)
 
-func (b Build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type build struct {
+	buildDir string
+}
+
+func NewBuild(baseBuildDir string) http.Handler {
+	return &build{buildDir: baseBuildDir}
+}
+
+func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "you must POST to this endpoint", http.StatusBadRequest)
 		return
 	}
 	tr := tar.NewReader(r.Body)
 	defer r.Body.Close()
-	tmpDir, err := ioutil.TempDir("", "gci_server_builds")
+	tmpDir, err := ioutil.TempDir(b.buildDir, tempDirPrefix)
 	if err != nil {
-		http.Error(w, "error creating temp directory", http.StatusBadRequest)
+		log.Err("creating temp directory under %s (%s)", b.buildDir, err)
+		http.Error(w, "error creating temp directory", http.StatusInternalServerError)
 		return
 	}
 	defer os.Remove(tmpDir)
@@ -42,18 +53,25 @@ func (b Build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		fileName := filepath.Join(tmpDir, hdr.Name)
+		dir := filepath.Dir(fileName)
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			log.Err("Creating base directory %s (%s)", dir, err)
+			continue
+		}
 		fd, err := os.Create(fileName)
 		if err != nil {
 			log.Err("Creating %s (%s)", fileName, err)
 			continue
 		}
+		// TODO: fix too many open files. wrap this operation in a func so it can be deferred
 		defer fd.Close()
 
 		var dest io.Writer = fd
-		if hdr.Name == config.DefaultFileNameYaml || hdr.Name == config.DefaultFileNameYml && gciFileName != "" {
+		isGCIFile := hdr.Name == config.DefaultFileNameYaml || hdr.Name == config.DefaultFileNameYml
+		if isGCIFile && gciFileName == "" {
 			dest = io.MultiWriter(fd, &gciFileBytes)
 			gciFileName = hdr.Name
-		} else {
+		} else if isGCIFile && gciFileName != "" {
 			str := fmt.Sprintf("multiple GCI config files found (%s and %s)", hdr.Name, gciFileName)
 			http.Error(w, str, http.StatusBadRequest)
 			return

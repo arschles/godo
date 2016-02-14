@@ -3,6 +3,7 @@ package rpc
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -18,10 +19,11 @@ type errUnexpectedHTTPStatusCode struct {
 	url      string
 	actual   int
 	expected int
+	respBody string
 }
 
 func (e errUnexpectedHTTPStatusCode) Error() string {
-	return fmt.Sprintf("expected code %d from %s, got %d", e.expected, e.url, e.actual)
+	return fmt.Sprintf("expected code %d from %s, got %d: %s", e.expected, e.url, e.actual, e.respBody)
 }
 
 type HTTPClient struct {
@@ -55,7 +57,17 @@ func (h *HTTPClient) Build(ctx io.Reader, crossCompile bool, envs []string) (io.
 		return nil, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, errUnexpectedHTTPStatusCode{expected: http.StatusOK, actual: resp.StatusCode, url: urlStr}
+		var body string
+		defer resp.Body.Close()
+		if bodyBytes, err := ioutil.ReadAll(resp.Body); err == nil {
+			body = string(bodyBytes)
+		}
+		return nil, errUnexpectedHTTPStatusCode{
+			expected: http.StatusOK,
+			actual:   resp.StatusCode,
+			url:      urlStr,
+			respBody: body,
+		}
 	}
 
 	return resp.Body, nil
