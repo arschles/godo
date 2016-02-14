@@ -10,7 +10,7 @@ type Build struct {
 
 func (b Build) GetHost() string {
 	if b.Host == "" {
-		return DefaultHost
+		return DefaultClientHost
 	}
 	return b.Host
 }

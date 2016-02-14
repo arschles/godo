@@ -15,7 +15,7 @@ func Run(c *cli.Context) {
 	mux := http.NewServeMux()
 	cfg := config.ReadOrDie(c.String(actions.FlagConfigFile))
 	mux.Handle("/build", handlers.Build{})
-	hostStr := fmt.Sprintf("%s:%d", cfg.CI.Server.GetHost(), cfg.CI.Server.GetPort())
+	hostStr := fmt.Sprintf("%s:%d", cfg.CI.Server.GetBindHost(), cfg.CI.Server.GetPort())
 	log.Info("Serving GCI on %s", hostStr)
 	log.Die(http.ListenAndServe(hostStr, mux).Error())
 }

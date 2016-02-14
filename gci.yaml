@@ -30,6 +30,7 @@ ci:
     host: 0.0.0.0
     port: 8084
   build:
+    port: 8084
     exclude:
       - name: gci
       - name: README.md

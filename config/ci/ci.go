@@ -1,8 +1,9 @@
 package ci
 
 const (
-	DefaultHost = "0.0.0.0"
-	DefaultPort = 8083
+	DefaultBindHost   = "0.0.0.0"
+	DefaultClientHost = "127.0.0.1"
+	DefaultPort       = 8083
 )
 
 type CI struct {
@@ -15,12 +16,13 @@ type Server struct {
 	Port uint   `yaml:"port"`
 }
 
-func (c Server) GetHost() string {
+func (c Server) GetBindHost() string {
 	if c.Host == "" {
-		return DefaultHost
+		return DefaultBindHost
 	}
 	return c.Host
 }
+
 func (c Server) GetPort() uint {
 	if c.Port == 0 {
 		return DefaultPort
