@@ -11,6 +11,7 @@ test:
     - ./config/...
     - ./dockutil/...
     - ./log/...
+    - ./server/...
     - ./tpl/...
     - ./util/...
     - .
@@ -28,3 +29,11 @@ ci:
   server:
     host: 0.0.0.0
     port: 8084
+  build:
+    exclude:
+      - name: gci
+      - name: README.md
+      - name: LICENSE
+      - name: Dockerfile
+      - name: .git
+        recursive: true
