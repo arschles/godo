@@ -25,7 +25,7 @@ func Test(c *cli.Context) {
 	}
 
 	// TODO: don't assume that the GOPATH in the container is this. Somehow the util/docker package needs to specify it
-	workDir := dockutil.ContainerGoPath + "/" + paths.PackageName // + "/src/" + paths.PackageName
+	workDir := containerGoPath + "/src/" + paths.PackageName
 	mounts := []docker.Mount{
 		{
 			Name:        "pwd",
@@ -40,7 +40,7 @@ func Test(c *cli.Context) {
 		cmd,
 		cfg.Test.Env,
 		mounts,
-		dockutil.ContainerGoPath,
+		containerGoPath,
 		workDir,
 	)
 	container, err := dockerClient.CreateContainer(createContainerOpts)

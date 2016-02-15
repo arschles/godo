@@ -1,6 +1,7 @@
 package actions
 
 const (
-	FlagDebug      = "debug"
-	FlagConfigFile = "configfile"
+	FlagDebug       = "debug"
+	FlagConfigFile  = "configfile"
+	containerGoPath = "/go"
 )

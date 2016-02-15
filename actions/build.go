@@ -19,7 +19,7 @@ func Build(c *cli.Context) {
 	logsCh := make(chan dockbuild.Log)
 	resultCh := make(chan int)
 	errCh := make(chan error)
-	go dockutil.Build(dockerClient, paths.CWD, paths.CWD, paths.PackageName, cfg, logsCh, resultCh, errCh)
+	go dockutil.Build(dockerClient, paths.CWD, paths.CWD, paths.PackageName, "/go", cfg, logsCh, resultCh, errCh)
 
 	for {
 		select {

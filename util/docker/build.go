@@ -37,7 +37,8 @@ func Build(
 	dockerCl *docker.Client,
 	rootDir,
 	outDir,
-	packageName string,
+	packageName,
+	containerGoPath string,
 	cfg *config.File,
 	logsCh chan<- build.Log,
 	resultCh chan<- int,
@@ -46,13 +47,13 @@ func Build(
 	projName := filepath.Base(rootDir)
 	imgName := imageName(cfg.Build.CrossCompile)
 	containerName := fmt.Sprintf("gci-build-%s-%s", projName, uuid.New())
-	logsCh <- build.LogFromString("Creating container %s", containerName)
+	logsCh <- build.LogFromString("Creating container %s to build %s", containerName, packageName)
 
 	binaryName := cfg.Build.GetOutputBinary(projName)
 	cmd := command(cfg.Build.CrossCompile, fmt.Sprintf("%s/%s", containerOutDir, binaryName))
 	env := cfg.Build.Env
 
-	containerWorkDir := fmt.Sprintf("%s/%s", ContainerGoPath, packageName)
+	containerWorkDir := fmt.Sprintf("%s/src/%s", containerGoPath, packageName)
 
 	mounts := []docker.Mount{
 		{
@@ -74,7 +75,7 @@ func Build(
 		cmd,
 		env,
 		mounts,
-		ContainerGoPath,
+		containerGoPath,
 		containerWorkDir,
 	)
 	container, err := dockerCl.CreateContainer(createContainerOpts)

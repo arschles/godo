@@ -5,4 +5,5 @@ const (
 	CrossCompileTrue   = "true"
 	CrossCompileFalse  = "false"
 	EnvHeader          = "X-GCI-EnvVar"
+	PackageNameHeader  = "X-GCI-Package-Name"
 )

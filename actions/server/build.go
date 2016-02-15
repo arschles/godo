@@ -30,23 +30,25 @@ func Build(c *cli.Context) {
 		os.Exit(1)
 	}
 
+	paths := actions.PathsOrDie()
+
 	log.Info("Creating tar archive of current directory")
 
-	paths, err := fileutil.WalkAndExclude(wd, cfg.CI.Build.Excludes)
+	files, err := fileutil.WalkAndExclude(wd, cfg.CI.Build.Excludes)
 	if err != nil {
 		log.Err("walking %s to get files to upload to the server (%s)", wd, err)
 		os.Exit(1)
 	}
 
 	tarArchive := new(bytes.Buffer)
-	if err := tarutil.CreateArchiveFromFiles(tarArchive, paths); err != nil {
+	if err := tarutil.CreateArchiveFromFiles(tarArchive, files); err != nil {
 		log.Err("creating tar archive of %s (%s)", wd, err)
 		os.Exit(1)
 	}
 
 	log.Info("Sending to server")
 	cl := rpc.NewHTTPClient(cfg.CI.Build.GetHost(), cfg.CI.Build.GetPort())
-	res, err := cl.Build(tarArchive, cfg.CI.Build.CrossCompile, cfg.CI.Build.Env)
+	res, err := cl.Build(tarArchive, cfg.CI.Build.CrossCompile, paths.PackageName, cfg.CI.Build.Env)
 	if err != nil {
 		log.Err("building on the server (%s)", err)
 		os.Exit(1)

@@ -41,7 +41,7 @@ func (h *HTTPClient) urlStr(path ...string) string {
 	return fmt.Sprintf("%s://%s:%d/%s", h.scheme, h.host, h.port, strings.Join(path, "/"))
 }
 
-func (h *HTTPClient) Build(ctx io.Reader, crossCompile bool, envs []string) (io.ReadCloser, error) {
+func (h *HTTPClient) Build(ctx io.Reader, crossCompile bool, packageName string, envs []string) (io.ReadCloser, error) {
 	urlStr := h.urlStr("build")
 	req, err := http.NewRequest("POST", urlStr, ctx)
 	if crossCompile {
@@ -49,6 +49,7 @@ func (h *HTTPClient) Build(ctx io.Reader, crossCompile bool, envs []string) (io.
 	} else {
 		req.Header.Set(common.CrossCompileHeader, common.CrossCompileFalse)
 	}
+	req.Header.Set(common.PackageNameHeader, packageName)
 	for _, env := range envs {
 		req.Header.Set(common.EnvHeader, env)
 	}
