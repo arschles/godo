@@ -4,74 +4,64 @@ import (
 	"archive/tar"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 
 	fileutil "github.com/arschles/gci/util/file"
 )
 
-type ErrCreatingHeader struct {
+type ErrWritingHeader struct {
 	path string
 	err  error
 }
 
-func (e ErrCreatingHeader) Error() string {
+func (e ErrWritingHeader) Error() string {
 	return fmt.Sprintf("error creating header for %s (%s)", e.path, e.err)
 }
 
-func CopyToFile(tarReader *tar.Reader, fileName string, otherWriters ...io.Writer) error {
-	dir := filepath.Dir(fileName)
-	// TODO: better mode for this dir?
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return err
+// File represents an on-disk file that can be written by a *tar.Writer, possibly as a different name, to a tar archive
+type File struct {
+	loc     string
+	tarName string
+}
+
+// NewFile creates a new File struct that points to the file at path on disk. It will be written as name to a tar archive on subsequent successful calls to Write
+func NewFile(path, name string) *File {
+	return &File{loc: path, tarName: name}
+}
+
+func FilesFromRoot(root string, baseNames []string, joiner func(elts ...string) string) []*File {
+	ret := make([]*File, len(baseNames))
+	for i, baseName := range baseNames {
+		ret[i] = NewFile(joiner(root, baseName), baseName)
 	}
-	fd, err := os.Create(fileName)
+	return ret
+}
+
+func (d *File) String() string {
+	return fmt.Sprintf("%s (%s)", d.tarName, d.loc)
+}
+
+// Name returns the name of the file as it will appear in a tar archive after a successful call to Write
+func (d *File) Name() string {
+	return d.tarName
+}
+
+// Path returns the path on disk of the file
+func (d *File) Path() string {
+	return d.loc
+}
+
+// Write opens the file, writes it to
+func (d *File) Write(tw *tar.Writer) error {
+	fd, fInfo, err := fileutil.OpenAndStat(d.loc)
 	if err != nil {
 		return err
 	}
 	defer fd.Close()
-	var dest io.Writer = fd
-	if len(otherWriters) > 0 {
-		for _, otherWriter := range otherWriters {
-			dest = io.MultiWriter(dest, otherWriter)
-		}
+	hdr := &tar.Header{Name: d.tarName, Mode: int64(fInfo.Mode()), Size: fInfo.Size()}
+	if err := tw.WriteHeader(hdr); err != nil {
+		return ErrWritingHeader{path: d.loc, err: err}
 	}
-	if _, err := io.Copy(dest, tarReader); err != nil {
-		return err
-	}
-	return nil
-}
-
-func WriteFileToTarWriter(file string, tarWriter *tar.Writer) error {
-	fd, fInfo, err := fileutil.OpenAndStat(file)
-	if err != nil {
-		return err
-	}
-	defer fd.Close()
-	hdr := &tar.Header{Name: file, Mode: int64(fInfo.Mode()), Size: fInfo.Size()}
-	if err := tarWriter.WriteHeader(hdr); err != nil {
-		return ErrCreatingHeader{path: file, err: err}
-	}
-	fileBytes, err := ioutil.ReadAll(fd)
-	if err != nil {
-		return err
-	}
-	if _, err := tarWriter.Write(fileBytes); err != nil {
-		return err
-	}
-	return nil
-}
-
-// CreateArchiveFromFiles creates a tar archive from the given files and writes it into wr. On any non-nil error, the contents of wr will be undefined
-func CreateArchiveFromFiles(wr io.Writer, files []string) error {
-	tarWriter := tar.NewWriter(wr)
-	for _, file := range files {
-		if err := WriteFileToTarWriter(file, tarWriter); err != nil {
-			return err
-		}
-	}
-	if err := tarWriter.Close(); err != nil {
+	if _, err := io.Copy(tw, fd); err != nil {
 		return err
 	}
 	return nil

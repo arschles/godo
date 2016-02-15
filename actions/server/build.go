@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"os"
+	"path/filepath"
 
 	"github.com/arschles/gci/actions"
 	"github.com/arschles/gci/config"
@@ -33,15 +34,17 @@ func Build(c *cli.Context) {
 
 	paths := actions.PathsOrDie()
 
-	log.Info("Walking current directory...")
+	log.Info("Walking current directory")
 
-	files, err := fileutil.WalkAndExclude(paths.CWD, true, cfg.CI.Build.Excludes)
+	fileBaseNames, err := fileutil.WalkAndExclude(paths.CWD, true, cfg.CI.Build.Excludes)
 	if err != nil {
 		log.Err("walking %s to get files to upload to the server (%s)", wd, err)
 		os.Exit(1)
 	}
 
-	log.Info("Archiving %d files...", len(files))
+	files := tarutil.FilesFromRoot(paths.CWD, fileBaseNames, filepath.Join)
+
+	log.Info("Archiving %d files", len(files))
 
 	tarArchive := new(bytes.Buffer)
 	if err := tarutil.CreateArchiveFromFiles(tarArchive, files); err != nil {

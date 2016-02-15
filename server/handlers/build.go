@@ -122,11 +122,13 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		case code := <-resultCh:
 			if code == 0 {
-				files, err := fileutil.WalkAndExclude(binTmpDir, nil)
+				fileBaseNames, err := fileutil.WalkAndExclude(binTmpDir, true, nil)
 				if err != nil {
 					http.Error(w, fmt.Sprintf("Error listing all output binaries (%s)", err), http.StatusInternalServerError)
 					return
 				}
+				files := tarutil.FilesFromRoot(binTmpDir, fileBaseNames, filepath.Join)
+				fmt.Println("creating archive for", files)
 				tarFileName := binTmpDir + "/result.tar"
 				tarFile, err := os.Create(tarFileName)
 				if err != nil {
