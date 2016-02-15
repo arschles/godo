@@ -16,11 +16,11 @@ import (
 
 func Run(c *cli.Context) {
 	dockerCl := dockutil.ClientOrDie()
-	mux := http.NewServeMux()
+	r := mux.NewRouter()
 	cfg := config.ReadOrDie(c.String(actions.FlagConfigFile))
-	mux.Handle("/build", handlers.NewBuild(dockerCl, fileutil.LocalTmpDirCreator())).Methods("POST")
-	mux.Handle("/test", handlers.NewTest(dockerCl, fileutil.LocalTmpDirCreator())).Methods("POST")
+	r.Handle("/build", handlers.NewBuild(dockerCl, fileutil.LocalTmpDirCreator())).Methods("POST")
+	r.Handle("/test", handlers.NewTest(dockerCl, fileutil.LocalTmpDirCreator())).Methods("POST")
 	hostStr := fmt.Sprintf("%s:%d", cfg.CI.Server.GetBindHost(), cfg.CI.Server.GetPort())
 	log.Info("Serving GCI on %s", hostStr)
-	log.Die(http.ListenAndServe(hostStr, mux).Error())
+	log.Die(http.ListenAndServe(hostStr, r).Error())
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/log"
 	dockutil "github.com/arschles/gci/util/docker"
-	dockbuild "github.com/arschles/gci/util/docker/build"
 	"github.com/codegangsta/cli"
 )
 
@@ -16,7 +15,7 @@ func Build(c *cli.Context) {
 
 	dockerClient := dockutil.ClientOrDie()
 
-	logsCh := make(chan dockbuild.Log)
+	logsCh := make(chan string)
 	resultCh := make(chan int)
 	errCh := make(chan error)
 	go dockutil.Build(dockerClient, paths.CWD, paths.CWD, paths.PackageName, "/go", cfg, logsCh, resultCh, errCh)
@@ -24,7 +23,7 @@ func Build(c *cli.Context) {
 	for {
 		select {
 		case l := <-logsCh:
-			log.Info(l.Message())
+			log.Info(l)
 		case code := <-resultCh:
 			if code == 0 {
 				log.Info("Success")

@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/server/common"
@@ -19,23 +18,19 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-const (
-	tmpDirPrefix = "gci"
-)
-
-type build struct {
+type test struct {
 	dockerCl      *docker.Client
 	tmpDirCreator fileutil.TmpDirCreator
 }
 
-func NewBuild(dockerCl *docker.Client, tmpDirCreator fileutil.TmpDirCreator) http.Handler {
-	return &build{
+func NewTest(dockerCl *docker.Client, tmpDirCreator fileutil.TmpDirCreator) http.Handler {
+	return &test{
 		dockerCl:      dockerCl,
 		tmpDirCreator: tmpDirCreator,
 	}
 }
 
-func (b *build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (b *test) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	packageName := r.Header.Get(common.PackageNameHeader)
 	if packageName == "" {
 		http.Error(w, fmt.Sprintf("You must include a %s header", common.PackageNameHeader), http.StatusBadRequest)
@@ -105,41 +100,25 @@ func (b *build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		cfg.Build.OutputBinary = filepath.Base(packageName)
 	}
 
-	go dockutil.Build(b.dockerCl, srcTmpDir, binTmpDir, packageName, containerGoPath, cfg, logsCh, resultCh, errCh)
+	go dockutil.Test(b.dockerCl, srcTmpDir, packageName, containerGoPath, cfg, logsCh, resultCh, errCh)
 
+	flush := func() {}
+	if fl, ok := w.(http.Flusher); ok {
+		flush = func() { fl.Flush() }
+	}
 	for {
 		select {
-		//TODO: stream logs to client!
 		case l := <-logsCh:
-			log.Println(l)
+			w.Write([]byte(l))
+			flush()
 		case err := <-errCh:
-			http.Error(w, fmt.Sprintf("Error building (%s)", err), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("Error running tests (%s)", err), http.StatusInternalServerError)
 			return
 		case code := <-resultCh:
 			if code == 0 {
-				fileBaseNames, err := fileutil.WalkAndExclude(binTmpDir, true, nil)
-				if err != nil {
-					http.Error(w, fmt.Sprintf("Error listing all output binaries (%s)", err), http.StatusInternalServerError)
-					return
-				}
-				files := tarutil.FilesFromRoot(binTmpDir, fileBaseNames, filepath.Join)
-				fmt.Println("creating archive for", files)
-				tarFileName := binTmpDir + "/result.tar"
-				tarFile, err := os.Create(tarFileName)
-				if err != nil {
-					http.Error(w, fmt.Sprintf("Error creating intermediate tar file (%s)", err), http.StatusInternalServerError)
-					return
-				}
-				defer tarFile.Close()
-				if err := tarutil.CreateArchiveFromFiles(tarFile, files); err != nil {
-					http.Error(w, fmt.Sprintf("Error creating tar archive from files (%s)", err), http.StatusInternalServerError)
-					return
-				}
-				http.ServeContent(w, r, tarFileName, time.Now(), tarFile)
 				return
 			} else {
-				http.Error(w, fmt.Sprintf("Build failed with code %d", code), http.StatusInternalServerError)
-				return
+				w.Write([]byte(fmt.Sprintf("Tests exited with code %d", code)))
 			}
 		}
 	}
