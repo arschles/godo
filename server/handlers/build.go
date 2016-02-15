@@ -36,11 +36,7 @@ func NewBuild(dockerCl *docker.Client, tmpDirCreator fileutil.TmpDirCreator) htt
 	}
 }
 
-func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "you must POST to this endpoint", http.StatusBadRequest)
-		return
-	}
+func (b *build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	packageName := r.Header.Get(common.PackageNameHeader)
 	if packageName == "" {
 		http.Error(w, fmt.Sprintf("You must include a %s header", common.PackageNameHeader), http.StatusBadRequest)
