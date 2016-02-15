@@ -16,7 +16,6 @@ import (
 	fileutil "github.com/arschles/gci/util/file"
 	tarutil "github.com/arschles/gci/util/tar"
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/pborman/uuid"
 )
 
 const (
@@ -52,7 +51,7 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	tr := tar.NewReader(r.Body)
 	defer r.Body.Close()
 
-	buildUUID := uuid.New()
+	buildUUID := shortUUID()
 	srcTmpDir, err := b.tmpDirCreator("", "%s-src-%s", tmpDirPrefix, buildUUID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating temp directory for source files (%s)", err), http.StatusInternalServerError)
