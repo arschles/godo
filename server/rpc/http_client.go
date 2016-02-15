@@ -82,3 +82,37 @@ func (h *HTTPClient) Build(ctx io.Reader, target io.Writer, crossCompile bool, p
 
 	return nil
 }
+
+func (h *HTTPClient) Test(ctx io.Reader, target io.Writer, packageName string, envs []string) error {
+	urlStr := h.urlStr("test")
+	req, err := http.NewRequest("POST", urlStr, ctx)
+	req.Header.Set(common.PackageNameHeader, packageName)
+	for _, env := range envs {
+		req.Header.Set(common.EnvHeader, env)
+	}
+	resp, err := h.client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var errBody string
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err == nil {
+			errBody = string(bodyBytes)
+		}
+		return errUnexpectedHTTPStatusCode{
+			expected: http.StatusOK,
+			actual:   resp.StatusCode,
+			url:      urlStr,
+			respBody: errBody,
+		}
+	}
+
+	if _, err := io.Copy(target, resp.Body); err != nil {
+		return err
+	}
+
+	return nil
+}

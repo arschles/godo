@@ -5,54 +5,37 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/arschles/gci/config"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/pborman/uuid"
 )
 
-const (
-	containerOutDir = "/gobin"
-)
-
-func goxOutputTpl(binPath string) string {
-	return fmt.Sprintf("%s_{{.OS}}_{{.Arch}}", binPath)
-}
-
-func imageName(crossCompile bool) string {
-	if crossCompile {
-		return GoxImage
+func testCommand(packages []string) []string {
+	ret := make([]string, len(packages)+2)
+	ret[0], ret[1] = "go", "test"
+	for i, pkg := range packages {
+		ret[i+2] = pkg
 	}
-	return GolangImage
+	return ret
 }
 
-func command(crossCompile bool, binaryPath string) []string {
-	if crossCompile {
-		return []string{"gox", "-output", goxOutputTpl(binaryPath)}
-	}
-	return []string{"go", "build", "-o", binaryPath}
-}
-
-// Build runs the build of rootDir inside a Docker container, putting binaries into outDir
-func Build(
+// Test runs tests of rootDir inside a Docker container
+func Test(
 	dockerCl *docker.Client,
 	rootDir,
-	outDir,
 	packageName,
 	containerGoPath string,
-	cfg *config.File,
+	packages,
+	env []string,
 	logsCh chan<- string,
 	resultCh chan<- int,
 	errCh chan<- error) {
 
 	projName := filepath.Base(rootDir)
-	imgName := imageName(cfg.Build.CrossCompile)
+	imgName := GolangImage
 	containerName := fmt.Sprintf("gci-build-%s-%s", projName, uuid.New())
 	logsCh <- fmt.Sprintf("Creating container %s to build %s", containerName, packageName)
 
-	binaryName := cfg.Build.GetOutputBinary(projName)
-	cmd := command(cfg.Build.CrossCompile, fmt.Sprintf("%s/%s", containerOutDir, binaryName))
-	env := cfg.Build.Env
-
+	cmd := testCommand(packages)
 	containerWorkDir := fmt.Sprintf("%s/src/%s", containerGoPath, packageName)
 
 	mounts := []docker.Mount{
@@ -61,12 +44,6 @@ func Build(
 			Source:      rootDir,
 			Destination: containerWorkDir,
 			Mode:        "r",
-		},
-		{
-			Name:        "dest_dir",
-			Source:      outDir,
-			Destination: containerOutDir,
-			Mode:        "w",
 		},
 	}
 	createContainerOpts, hostConfig := CreateAndStartContainerOpts(
@@ -93,7 +70,7 @@ func Build(
 
 	defer func() {
 		if err := dockerCl.RemoveContainer(docker.RemoveContainerOptions{ID: container.ID, Force: true}); err != nil {
-			log.Printf("Error removing build container %s (%s)", container.ID, err)
+			log.Printf("Error removing test container %s (%s)", container.ID, err)
 		}
 	}()
 
@@ -103,13 +80,13 @@ func Build(
 	waitCodeCh, waitErrCh, err := AttachAndWait(dockerCl, container.ID, attachOpts)
 
 	if err != nil {
-		errCh <- fmt.Errorf("error attaching to the build container (%s)", err)
+		errCh <- fmt.Errorf("error attaching to the test container (%s)", err)
 		return
 	}
 
 	select {
 	case err := <-waitErrCh:
-		errCh <- fmt.Errorf("error waiting for the build container to finish (%s)", err)
+		errCh <- fmt.Errorf("error waiting for the test container to finish (%s)", err)
 		return
 	case code := <-waitCodeCh:
 		resultCh <- code

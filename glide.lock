@@ -1,5 +1,5 @@
-hash: 7f44d50b18ccf7bd1fde73d1f172714175f2f7d735df95a9ba6741668d445f8c
-updated: 2016-02-15T14:05:42.860278347-08:00
+hash: 1689e14e5968973a5ff87c06c21b745278e33ca59f486b19f4d02a1a525f9ff8
+updated: 2016-02-15T15:17:12.400206637-08:00
 imports:
 - name: github.com/arschles/assert
   version: 6882f85ccdc7c1822b146d1a6b0c2c48f91b5140
@@ -27,6 +27,10 @@ imports:
   - external/github.com/docker/docker/pkg/promise
   - external/github.com/docker/docker/pkg/system
   - external/github.com/opencontainers/runc/libcontainer/user
+- name: github.com/gorilla/context
+  version: 1c83b3eabd45b6d76072b66b746c20815fb2872d
+- name: github.com/gorilla/mux
+  version: 26a6070f849969ba72b72256e9f14cf519751690
 - name: github.com/labstack/gommon
   version: cc4f2986014fdd1f2e7800b3c082af17cad28db2
   subpackages:
