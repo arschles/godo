@@ -49,12 +49,12 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	buildUUID := shortUUID()
-	srcTmpDir, err := b.tmpDirCreator("", "%s-src-%s", tmpDirPrefix, buildUUID)
+	srcTmpDir, err := b.tmpDirCreator("%s-src-%s", tmpDirPrefix, buildUUID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating temp directory for source files (%s)", err), http.StatusInternalServerError)
 		return
 	}
-	binTmpDir, err := b.tmpDirCreator("", "%s-bin-%s", tmpDirPrefix, buildUUID)
+	binTmpDir, err := b.tmpDirCreator("%s-bin-%s", tmpDirPrefix, buildUUID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating temp directory for binary files (%s)", err), http.StatusInternalServerError)
 		return
