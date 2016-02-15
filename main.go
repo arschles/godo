@@ -70,7 +70,14 @@ func main() {
 					Aliases:     []string{"b"},
 					Usage:       "Build this project on a running GCI server",
 					Description: "Send this project to a running GCI server and tell it to build according to the config file under ci -> build",
-					Action:      server.Build,
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  server.OutputTarFileFlag,
+							Value: server.DefaultTarOutputFile,
+							Usage: "Where to put the resultant output files",
+						},
+					},
+					Action: server.Build,
 				},
 				{
 					Name:        "test",

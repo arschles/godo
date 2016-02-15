@@ -16,13 +16,14 @@ import (
 )
 
 const (
-	defaultTarOutputFile = "gci-server-build.tar"
+	DefaultTarOutputFile = "gci-server-build.tar"
+	OutputTarFileFlag    = "output-file"
 )
 
 func Build(c *cli.Context) {
-	tarOutputFile := c.String("output")
+	tarOutputFile := c.String(OutputTarFileFlag)
 	if tarOutputFile == "" {
-		tarOutputFile = defaultTarOutputFile
+		tarOutputFile = DefaultTarOutputFile
 	}
 
 	cfg := config.ReadOrDie(c.String(actions.FlagConfigFile))
@@ -66,5 +67,6 @@ func Build(c *cli.Context) {
 		os.Exit(1)
 	}
 
+	log.Info("Wrote built binaries to %s", tarOutputFile)
 	log.Info("Success")
 }
