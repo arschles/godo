@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	"code.google.com/p/go-uuid/uuid"
+	"github.com/pborman/uuid"
 )
 
 func init() {
@@ -13,11 +13,11 @@ func init() {
 }
 
 func RandIntSuffix(str, sep string) string {
-	return fmt.Sprintf("%s%s%d", str, rand.Int())
+	return fmt.Sprintf("%s%s%d", str, sep, rand.Int())
 }
 
 func RandString() string {
-	return fmt.Sprintf("%s-%s", uuid.New(), rand.Int())
+	return fmt.Sprintf("%s-%d", uuid.New(), rand.Int())
 }
 
 func RandBytes() []byte {

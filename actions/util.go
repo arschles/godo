@@ -6,13 +6,14 @@ import (
 	"github.com/arschles/gci/log"
 )
 
-type paths struct {
-	gopath string
-	cwd    string
-	pkg    string
+type Paths struct {
+	GoPath      string
+	CWD         string
+	PackageName string
 }
 
-func pathsOrDie() paths {
+// PathsOrDie gets the current GOPATH, current working directory and package name and returns them all in the Paths struct. If any one of those values can't be obtained, this func logs the error and exits the process
+func PathsOrDie() Paths {
 	gopath := os.Getenv("GOPATH")
 	if gopath == "" {
 		log.Err("GOPATH environment variable not found")
@@ -31,5 +32,5 @@ func pathsOrDie() paths {
 		os.Exit(1)
 	}
 
-	return paths{gopath: gopath, pkg: pkgPath, cwd: cwd}
+	return Paths{GoPath: gopath, PackageName: pkgPath, CWD: cwd}
 }

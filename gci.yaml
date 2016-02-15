@@ -3,16 +3,16 @@ build:
   output-binary: gci
   cross-compile: false
   env:
-    - GOOS=darwin
+    - GOOS=linux
     - GOARCH=amd64
 test:
   paths:
     - ./actions/...
     - ./config/...
-    - ./dockutil/...
-    - ./log/...
-    - ./tpl/...
     - ./util/...
+    - ./log/...
+    - ./server/...
+    - ./tpl/...
     - .
 docker:
   image-name: quay.io/arschles/gci
@@ -24,3 +24,16 @@ docker:
         - vendor
   push:
     auth-file-location: ~/.docker/config.json
+ci:
+  server:
+    host: 0.0.0.0
+    port: 8084
+  build:
+    port: 8084
+    exclude:
+      - name: gci
+      - name: README.md
+      - name: LICENSE
+      - name: Dockerfile
+      - name: .git
+        recursive: true
