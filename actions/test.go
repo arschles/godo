@@ -5,11 +5,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"code.google.com/p/go-uuid/uuid"
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/dockutil"
 	"github.com/arschles/gci/log"
 	"github.com/codegangsta/cli"
+	"github.com/pborman/uuid"
 )
 
 func Test(c *cli.Context) {
