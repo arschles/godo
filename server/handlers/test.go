@@ -72,9 +72,10 @@ func (b *test) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		var gciFileBytes bytes.Buffer
 		var otherWriters []io.Writer
-		if isGCIFileName(hdr.Name) && !configFileFound {
+		base := filepath.Base(hdr.Name)
+		if isGCIFileName(base) && !configFileFound {
 			otherWriters = append(otherWriters, &gciFileBytes)
-		} else if isGCIFileName(hdr.Name) && configFileFound {
+		} else if isGCIFileName(base) && configFileFound {
 			http.Error(w, "Multiple GCI config files found", http.StatusBadRequest)
 			return
 		}
@@ -96,11 +97,8 @@ func (b *test) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logsCh := make(chan string)
 	resultCh := make(chan int)
 	errCh := make(chan error)
-	if cfg.Build.OutputBinary == "" {
-		cfg.Build.OutputBinary = filepath.Base(packageName)
-	}
 
-	go dockutil.Test(b.dockerCl, srcTmpDir, packageName, containerGoPath, cfg, logsCh, resultCh, errCh)
+	go dockutil.Test(b.dockerCl, srcTmpDir, packageName, containerGoPath, cfg.Test.Paths, cfg.Test.Env, logsCh, resultCh, errCh)
 
 	flush := func() {}
 	if fl, ok := w.(http.Flusher); ok {

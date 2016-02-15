@@ -5,7 +5,6 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/arschles/gci/config"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/pborman/uuid"
 )
@@ -25,7 +24,8 @@ func Test(
 	rootDir,
 	packageName,
 	containerGoPath string,
-	cfg *config.File,
+	packages,
+	env []string,
 	logsCh chan<- string,
 	resultCh chan<- int,
 	errCh chan<- error) {
@@ -35,12 +35,7 @@ func Test(
 	containerName := fmt.Sprintf("gci-build-%s-%s", projName, uuid.New())
 	logsCh <- fmt.Sprintf("Creating container %s to build %s", containerName, packageName)
 
-	if len(cfg.Test.Paths) == 0 {
-		cfg.Test.Paths = append(cfg.Test.Paths, "./...")
-	}
-	cmd := testCommand(cfg.Test.Paths)
-	env := cfg.Test.Env
-
+	cmd := testCommand(packages)
 	containerWorkDir := fmt.Sprintf("%s/src/%s", containerGoPath, packageName)
 
 	mounts := []docker.Mount{
