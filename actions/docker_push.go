@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/arschles/gci/config"
-	"github.com/arschles/gci/dockutil"
 	"github.com/arschles/gci/log"
+	dockutil "github.com/arschles/gci/util/docker"
 	"github.com/codegangsta/cli"
 	docker "github.com/fsouza/go-dockerclient"
 )

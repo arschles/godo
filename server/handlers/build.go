@@ -9,10 +9,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/log"
+	dockutil "github.com/arschles/gci/util/docker"
+	tarutil "github.com/arschles/gci/util/tar"
+	docker "github.com/fsouza/go-dockerclient"
 )
 
 const (
@@ -21,10 +23,11 @@ const (
 
 type build struct {
 	buildDir string
+	dockerCl *docker.Client
 }
 
-func NewBuild(baseBuildDir string) http.Handler {
-	return &build{buildDir: baseBuildDir}
+func NewBuild(baseBuildDir string, dockerCl *docker.Client) http.Handler {
+	return &build{buildDir: baseBuildDir, dockerCl: dockerCl}
 }
 
 func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +68,7 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fileName := filepath.Join(tmpDir, hdr.Name)
-		if err := copyToFile(tr, fileName, otherWriters...); err != nil {
+		if err := tarutil.CopyToFile(tr, fileName, otherWriters...); err != nil {
 			str := fmt.Sprintf("Copying %s to a file (%s)", hdr.Name, err)
 			log.Err(str)
 			http.Error(w, str, http.StatusInternalServerError)
@@ -78,5 +81,19 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		cfg = c
 	}
-	io.Copy(w, strings.NewReader(fmt.Sprintf("%s", *cfg)))
+	outDir := filepath.Join(tmpDir, "built-binaries")
+	if _, err := dockutil.Build(b.dockerCl, tmpDir, outDir, cfg); err != nil {
+		http.Error(w, fmt.Sprintf("Error building (%s)", err), http.StatusInternalServerError)
+		return
+	}
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error opening completed binary (%s)", err), http.StatusInternalServerError)
+		return
+	}
+	// TODO: tar up the outDir and send it to w
+	// if _, err := io.Copy(w, []byte("hello world!")); err != nil {
+	// http.Error(w, fmt.Sprintf("sending completed binary (%s)", err), http.StatusInternalServerError)
+	// return
+	// }
+	w.Write([]byte("hello world!"))
 }

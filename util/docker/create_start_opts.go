@@ -1,4 +1,4 @@
-package dockutil
+package docker
 
 import (
 	"fmt"

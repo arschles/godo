@@ -8,6 +8,8 @@ import (
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/log"
 	"github.com/arschles/gci/server/rpc"
+	fileutil "github.com/arschles/gci/util/file"
+	tarutil "github.com/arschles/gci/util/tar"
 	"github.com/codegangsta/cli"
 )
 
@@ -30,14 +32,14 @@ func Build(c *cli.Context) {
 
 	log.Info("Creating tar archive of current directory")
 
-	paths, err := getFiles(wd, cfg.CI.Build.Excludes)
+	paths, err := fileutil.WalkAndExclude(wd, cfg.CI.Build.Excludes)
 	if err != nil {
 		log.Err("walking %s to get files to upload to the server (%s)", wd, err)
 		os.Exit(1)
 	}
 
 	tarArchive := new(bytes.Buffer)
-	if _, err := createTarArchive(tarArchive, paths); err != nil {
+	if err := tarutil.CreateArchive(tarArchive, paths); err != nil {
 		log.Err("creating tar archive of %s (%s)", wd, err)
 		os.Exit(1)
 	}
@@ -49,7 +51,7 @@ func Build(c *cli.Context) {
 		os.Exit(1)
 	}
 	defer res.Close()
-	if err := writeToFile(tarOutputFile, res); err != nil {
+	if err := fileutil.CreateAndWrite(tarOutputFile, res); err != nil {
 		log.Err("writing the result to %s (%s)", tarOutputFile, err)
 		os.Exit(1)
 	}

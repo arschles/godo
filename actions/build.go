@@ -7,8 +7,8 @@ import (
 
 	"code.google.com/p/go-uuid/uuid"
 	"github.com/arschles/gci/config"
-	"github.com/arschles/gci/dockutil"
 	"github.com/arschles/gci/log"
+	dockutil "github.com/arschles/gci/util/docker"
 	"github.com/codegangsta/cli"
 )
 
