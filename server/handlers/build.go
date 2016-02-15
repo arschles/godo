@@ -40,9 +40,13 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error creating temp directory", http.StatusInternalServerError)
 		return
 	}
-	defer os.Remove(tmpDir)
-	gciFileName := ""
-	var gciFileBytes bytes.Buffer
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			log.Err("Removing temporary build dir %s (%s)", tmpDir, err)
+		}
+	}()
+	cfg := config.Empty()
+	configFileFound := false
 	for {
 		hdr, err := tr.Next()
 		if err == io.EOF {
@@ -51,42 +55,24 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Err("Reading file (%s)", err)
 			break
 		}
-
-		fileName := filepath.Join(tmpDir, hdr.Name)
-		dir := filepath.Dir(fileName)
-		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-			log.Err("Creating base directory %s (%s)", dir, err)
-			continue
-		}
-		fd, err := os.Create(fileName)
-		if err != nil {
-			log.Err("Creating %s (%s)", fileName, err)
-			continue
-		}
-		// TODO: fix too many open files. wrap this operation in a func so it can be deferred
-		defer fd.Close()
-
-		var dest io.Writer = fd
-		isGCIFile := hdr.Name == config.DefaultFileNameYaml || hdr.Name == config.DefaultFileNameYml
-		if isGCIFile && gciFileName == "" {
-			dest = io.MultiWriter(fd, &gciFileBytes)
-			gciFileName = hdr.Name
-		} else if isGCIFile && gciFileName != "" {
-			str := fmt.Sprintf("multiple GCI config files found (%s and %s)", hdr.Name, gciFileName)
-			http.Error(w, str, http.StatusBadRequest)
+		var gciFileBytes bytes.Buffer
+		var otherWriters []io.Writer
+		if isGCIFileName(hdr.Name) && !configFileFound {
+			otherWriters = append(otherWriters, &gciFileBytes)
+		} else if isGCIFileName(hdr.Name) && configFileFound {
+			http.Error(w, "Multiple GCI config files found", http.StatusBadRequest)
 			return
 		}
-
-		if _, err := io.Copy(dest, tr); err != nil {
-			log.Err("Writing archived file to %s (%s)", fileName, err)
-			continue
+		fileName := filepath.Join(tmpDir, hdr.Name)
+		if err := copyToFile(tr, fileName, otherWriters...); err != nil {
+			str := fmt.Sprintf("Copying %s to a file (%s)", hdr.Name, err)
+			log.Err(str)
+			http.Error(w, str, http.StatusInternalServerError)
+			return
 		}
-	}
-	cfg := config.Empty()
-	if gciFileName != "" {
 		c, err := config.ReadBytes(gciFileBytes.Bytes())
 		if err != nil {
-			http.Error(w, fmt.Sprintf("%s was invalid (%s)", gciFileName, err), http.StatusBadRequest)
+			http.Error(w, fmt.Sprintf("%s was an invalid config file (%s)", hdr.Name, err), http.StatusBadRequest)
 			return
 		}
 		cfg = c
