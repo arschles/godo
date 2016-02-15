@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/server/common"
@@ -122,10 +123,19 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					http.Error(w, fmt.Sprintf("Error listing all output binaries (%s)", err), http.StatusInternalServerError)
 					return
 				}
-				if err := tarutil.CreateArchiveFromFiles(w, files); err != nil {
+				tarFileName := binTmpDir + "/result.tar"
+				tarFile, err := os.Create(tarFileName)
+				if err != nil {
+					http.Error(w, fmt.Sprintf("Error creating intermediate tar file (%s)", err), http.StatusInternalServerError)
+					return
+				}
+				defer tarFile.Close()
+				if err := tarutil.CreateArchiveFromFiles(tarFile, files); err != nil {
 					http.Error(w, fmt.Sprintf("Error creating tar archive from files (%s)", err), http.StatusInternalServerError)
 					return
 				}
+				http.ServeContent(w, r, tarFileName, time.Now(), tarFile)
+				return
 			} else {
 				http.Error(w, fmt.Sprintf("Build failed with code %d", code), http.StatusInternalServerError)
 				return

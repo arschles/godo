@@ -41,7 +41,10 @@ func (h *HTTPClient) urlStr(path ...string) string {
 	return fmt.Sprintf("%s://%s:%d/%s", h.scheme, h.host, h.port, strings.Join(path, "/"))
 }
 
-func (h *HTTPClient) Build(ctx io.Reader, crossCompile bool, packageName string, envs []string) (io.ReadCloser, error) {
+// Build requests to build packageName on the server. It uploads the contents of ctx (which should be tar formatted) to the server, and tells the server whether or not to cross compile and which environment variables to build with (e.g. GOOS, GOARCH, etc...). On successful return, it writes the results to target. On failure, returns an error.
+//
+// Writes may have occured to target even if a non-nil error was returned.
+func (h *HTTPClient) Build(ctx io.Reader, target io.Writer, crossCompile bool, packageName string, envs []string) error {
 	urlStr := h.urlStr("build")
 	req, err := http.NewRequest("POST", urlStr, ctx)
 	if crossCompile {
@@ -55,21 +58,27 @@ func (h *HTTPClient) Build(ctx io.Reader, crossCompile bool, packageName string,
 	}
 	resp, err := h.client.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
-		var body string
-		defer resp.Body.Close()
-		if bodyBytes, err := ioutil.ReadAll(resp.Body); err == nil {
-			body = string(bodyBytes)
+		var errBody string
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err == nil {
+			errBody = string(bodyBytes)
 		}
-		return nil, errUnexpectedHTTPStatusCode{
+		return errUnexpectedHTTPStatusCode{
 			expected: http.StatusOK,
 			actual:   resp.StatusCode,
 			url:      urlStr,
-			respBody: body,
+			respBody: errBody,
 		}
 	}
 
-	return resp.Body, nil
+	if _, err := io.Copy(target, resp.Body); err != nil {
+		return err
+	}
+
+	return nil
 }
