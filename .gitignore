@@ -28,3 +28,5 @@ vendor
 gci-test
 gci_*
 gci-server-build.tar
+gci-bin-*
+gci-src-*
