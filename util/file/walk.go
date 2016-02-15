@@ -7,8 +7,9 @@ import (
 	"github.com/arschles/gci/config/ci"
 )
 
-// WalkAndExclude walks the directory staring at root and returns all of the files (as relative paths) it finds, skipping all files and directories in exceptions
-func WalkAndExclude(root string, excludes []ci.Exclude) ([]string, error) {
+// WalkAndExclude walks the directory staring at root and returns all of the files (as relative paths) it finds, skipping all files and directories in exceptions.
+// If stripPrefix is passed as true, the returned files will be returned relative to root, otherwise they will all be prefixed with root
+func WalkAndExclude(root string, stripPrefix bool, excludes []ci.Exclude) ([]string, error) {
 	var paths []string
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -28,7 +29,11 @@ func WalkAndExclude(root string, excludes []ci.Exclude) ([]string, error) {
 		if info.IsDir() {
 			return nil
 		}
-		paths = append(paths, path)
+		if stripPrefix {
+			paths = append(paths, rel)
+		} else {
+			paths = append(paths, path)
+		}
 		return nil
 	})
 
