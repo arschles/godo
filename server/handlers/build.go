@@ -28,10 +28,10 @@ type build struct {
 	tmpDirCreator fileutil.TmpDirCreator
 }
 
-func NewBuild(dockerCl *docker.Client) http.Handler {
+func NewBuild(dockerCl *docker.Client, tmpDirCreator fileutil.TmpDirCreator) http.Handler {
 	return &build{
 		dockerCl:      dockerCl,
-		tmpDirCreator: fileutil.DefaultTmpDirCreator(),
+		tmpDirCreator: tmpDirCreator,
 	}
 }
 
