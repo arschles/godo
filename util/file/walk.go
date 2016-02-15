@@ -1,7 +1,6 @@
 package file
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 
@@ -13,7 +12,6 @@ func WalkAndExclude(root string, excludes []ci.Exclude) ([]string, error) {
 	var paths []string
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Printf("Error found in WalkAndExclude (%s)", err)
 			return nil
 		}
 		rel, err := filepath.Rel(root, path)
