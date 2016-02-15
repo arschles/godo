@@ -13,6 +13,7 @@ import (
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/log"
 	dockutil "github.com/arschles/gci/util/docker"
+	fileutil "github.com/arschles/gci/util/file"
 	tarutil "github.com/arschles/gci/util/tar"
 	docker "github.com/fsouza/go-dockerclient"
 )
@@ -37,6 +38,7 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	tr := tar.NewReader(r.Body)
 	defer r.Body.Close()
+
 	tmpDir, err := ioutil.TempDir(b.buildDir, tempDirPrefix)
 	if err != nil {
 		log.Err("creating temp directory under %s (%s)", b.buildDir, err)
@@ -90,10 +92,13 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Error opening completed binary (%s)", err), http.StatusInternalServerError)
 		return
 	}
-	// TODO: tar up the outDir and send it to w
-	// if _, err := io.Copy(w, []byte("hello world!")); err != nil {
-	// http.Error(w, fmt.Sprintf("sending completed binary (%s)", err), http.StatusInternalServerError)
-	// return
-	// }
-	w.Write([]byte("hello world!"))
+	files, err := fileutil.WalkAndExclude(outDir, nil)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error listing all output binaries (%s)", err), http.StatusInternalServerError)
+		return
+	}
+	if err := tarutil.CreateArchiveFromFiles(w, files); err != nil {
+		http.Error(w, fmt.Sprintf("Error creating tar archive from files (%s)", err), http.StatusInternalServerError)
+		return
+	}
 }
