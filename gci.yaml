@@ -3,7 +3,7 @@ build:
   output-binary: gci
   cross-compile: false
   env:
-    - GOOS=darwin
+    - GOOS=linux
     - GOARCH=amd64
 test:
   paths:
