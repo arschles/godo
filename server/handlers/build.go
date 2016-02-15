@@ -106,6 +106,10 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logsCh := make(chan dockbuild.Log)
 	resultCh := make(chan int)
 	errCh := make(chan error)
+	if cfg.Build.OutputBinary == "" {
+		cfg.Build.OutputBinary = filepath.Base(packageName)
+	}
+
 	go dockutil.Build(b.dockerCl, srcTmpDir, binTmpDir, packageName, containerGoPath, cfg, logsCh, resultCh, errCh)
 
 	for {
