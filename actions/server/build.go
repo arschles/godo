@@ -34,7 +34,7 @@ func Build(c *cli.Context) {
 
 	log.Info("Creating tar archive of current directory")
 
-	files, err := fileutil.WalkAndExclude(wd, cfg.CI.Build.Excludes)
+	files, err := fileutil.WalkAndExclude(".", cfg.CI.Build.Excludes)
 	if err != nil {
 		log.Err("walking %s to get files to upload to the server (%s)", wd, err)
 		os.Exit(1)
