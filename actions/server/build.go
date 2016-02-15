@@ -39,7 +39,7 @@ func Build(c *cli.Context) {
 	}
 
 	tarArchive := new(bytes.Buffer)
-	if err := tarutil.CreateArchive(tarArchive, paths); err != nil {
+	if err := tarutil.CreateArchiveFromFiles(tarArchive, paths); err != nil {
 		log.Err("creating tar archive of %s (%s)", wd, err)
 		os.Exit(1)
 	}

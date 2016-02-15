@@ -63,8 +63,8 @@ func WriteFileToTarWriter(file string, tarWriter *tar.Writer) error {
 	return nil
 }
 
-// CreateArchive creates a tar archive from the given files and writes it into wr. On any non-nil error, the contents of wr will be undefined
-func CreateArchive(wr io.Writer, files []string) error {
+// CreateArchiveFromFiles creates a tar archive from the given files and writes it into wr. On any non-nil error, the contents of wr will be undefined
+func CreateArchiveFromFiles(wr io.Writer, files []string) error {
 	tarWriter := tar.NewWriter(wr)
 	for _, file := range files {
 		if err := WriteFileToTarWriter(file, tarWriter); err != nil {
