@@ -44,6 +44,11 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "you must POST to this endpoint", http.StatusBadRequest)
 		return
 	}
+	packageName := r.Header.Get(common.PackageNameHeader)
+	if packageName == "" {
+		http.Error(w, fmt.Sprintf("You must include a %s header", common.PackageNameHeader), http.StatusBadRequest)
+		return
+	}
 	tr := tar.NewReader(r.Body)
 	defer r.Body.Close()
 
@@ -104,7 +109,8 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logsCh := make(chan dockbuild.Log)
 	resultCh := make(chan int)
 	errCh := make(chan error)
-	go dockutil.Build(b.dockerCl, b.goPath, srcTmpDir, binTmpDir, cfg, logsCh, resultCh, errCh)
+	go dockutil.Build(b.dockerCl, srcTmpDir, binTmpDir, packageName, containerGoPath, cfg, logsCh, resultCh, errCh)
+
 	for {
 		//TODO: stream logs!
 		select {
