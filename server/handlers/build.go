@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -16,19 +15,21 @@ import (
 	fileutil "github.com/arschles/gci/util/file"
 	tarutil "github.com/arschles/gci/util/tar"
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/pborman/uuid"
 )
 
 const (
-	tempDirPrefix = "gci_server_build"
+	tmpDirPrefix = "gci"
 )
 
 type build struct {
-	buildDir string
-	dockerCl *docker.Client
+	buildDir      string
+	dockerCl      *docker.Client
+	tmpDirCreator fileutil.TmpDirCreator
 }
 
 func NewBuild(baseBuildDir string, dockerCl *docker.Client) http.Handler {
-	return &build{buildDir: baseBuildDir, dockerCl: dockerCl}
+	return &build{buildDir: baseBuildDir, dockerCl: dockerCl, tmpDirCreator: fileutil.DefaultTmpDirCreator()}
 }
 
 func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -39,15 +40,24 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	tr := tar.NewReader(r.Body)
 	defer r.Body.Close()
 
-	tmpDir, err := ioutil.TempDir(b.buildDir, tempDirPrefix)
+	buildUUID := uuid.New()
+	srcTmpDir, err := b.tmpDirCreator("", "%s-src-%s", tmpDirPrefix, buildUUID)
 	if err != nil {
-		log.Printf("Error creating temp directory under %s (%s)", b.buildDir, err)
-		http.Error(w, "error creating temp directory", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Error creating temp directory for source files (%s)", err), http.StatusInternalServerError)
 		return
 	}
+	binTmpDir, err := b.tmpDirCreator("", "%s-bin-%s", tmpDirPrefix, buildUUID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error creating temp directory for binary files (%s)", err), http.StatusInternalServerError)
+		return
+	}
+
 	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
-			log.Printf("Error removing temporary build dir %s (%s)", tmpDir, err)
+		if err := os.RemoveAll(srcTmpDir); err != nil {
+			log.Printf("Error removing source temp dir %s (%s)", srcTmpDir, err)
+		}
+		if err := os.RemoveAll(binTmpDir); err != nil {
+			log.Printf("Error removing binary temp dir %s (%s)", binTmpDir, err)
 		}
 	}()
 
@@ -69,7 +79,7 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Multiple GCI config files found", http.StatusBadRequest)
 			return
 		}
-		fileName := filepath.Join(tmpDir, hdr.Name)
+		fileName := filepath.Join(srcTmpDir, hdr.Name)
 		if err := tarutil.CopyToFile(tr, fileName, otherWriters...); err != nil {
 			str := fmt.Sprintf("Error copying %s to a file (%s)", hdr.Name, err)
 			log.Printf(str)
@@ -83,8 +93,7 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		cfg = c
 	}
-	outDir := filepath.Join(tmpDir, "built-binaries")
-	if _, err := dockutil.Build(b.dockerCl, tmpDir, outDir, cfg); err != nil {
+	if _, err := dockutil.Build(b.dockerCl, srcTmpDir, binTmpDir, cfg); err != nil {
 		http.Error(w, fmt.Sprintf("Error building (%s)", err), http.StatusInternalServerError)
 		return
 	}
@@ -92,7 +101,7 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Error opening completed binary (%s)", err), http.StatusInternalServerError)
 		return
 	}
-	files, err := fileutil.WalkAndExclude(outDir, nil)
+	files, err := fileutil.WalkAndExclude(binTmpDir, nil)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error listing all output binaries (%s)", err), http.StatusInternalServerError)
 		return
