@@ -6,5 +6,5 @@ import (
 
 // packagePath gets the portion of fullPath under gopath/src
 func packagePath(gopath, fullPath string) (string, error) {
-	return filepath.Rel(gopath, fullPath)
+	return filepath.Rel(gopath+"/src", fullPath)
 }
