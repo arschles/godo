@@ -5,31 +5,43 @@ import (
 	"os"
 	"path/filepath"
 
-	"code.google.com/p/go-uuid/uuid"
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/log"
 	dockutil "github.com/arschles/gci/util/docker"
 	"github.com/codegangsta/cli"
+	docker "github.com/fsouza/go-dockerclient"
+	"github.com/pborman/uuid"
 )
 
 func Test(c *cli.Context) {
 	cfg := config.ReadOrDie(c.String(FlagConfigFile))
-	paths := pathsOrDie()
+	paths := PathsOrDie()
 	dockerClient := dockutil.ClientOrDie()
-	projName := filepath.Base(paths.cwd)
+	projName := filepath.Base(paths.CWD)
 	name := fmt.Sprintf("gci-test-%s-%s", projName, uuid.New())
 	cmd := []string{"go", "test"}
 	for _, path := range cfg.Test.GetPaths() {
 		cmd = append(cmd, path)
 	}
 
+	// TODO: don't assume that the GOPATH in the container is this. Somehow the util/docker package needs to specify it
+	workDir := dockutil.ContainerGoPath + "/" + paths.PackageName // + "/src/" + paths.PackageName
+	mounts := []docker.Mount{
+		{
+			Name:        "pwd",
+			Source:      paths.CWD,
+			Destination: workDir,
+			Mode:        "rx",
+		},
+	}
 	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(
 		dockutil.GolangImage,
 		name,
 		cmd,
 		cfg.Test.Env,
-		paths.gopath,
-		paths.pkg,
+		mounts,
+		dockutil.ContainerGoPath,
+		workDir,
 	)
 	container, err := dockerClient.CreateContainer(createContainerOpts)
 	if err != nil {

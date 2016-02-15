@@ -12,6 +12,7 @@ import (
 
 	"github.com/arschles/gci/config"
 	dockutil "github.com/arschles/gci/util/docker"
+	dockbuild "github.com/arschles/gci/util/docker/build"
 	fileutil "github.com/arschles/gci/util/file"
 	tarutil "github.com/arschles/gci/util/tar"
 	docker "github.com/fsouza/go-dockerclient"
@@ -23,13 +24,19 @@ const (
 )
 
 type build struct {
+	goPath        string
 	buildDir      string
 	dockerCl      *docker.Client
 	tmpDirCreator fileutil.TmpDirCreator
 }
 
-func NewBuild(baseBuildDir string, dockerCl *docker.Client) http.Handler {
-	return &build{buildDir: baseBuildDir, dockerCl: dockerCl, tmpDirCreator: fileutil.DefaultTmpDirCreator()}
+func NewBuild(goPath, baseBuildDir string, dockerCl *docker.Client) http.Handler {
+	return &build{
+		goPath:        goPath,
+		buildDir:      baseBuildDir,
+		dockerCl:      dockerCl,
+		tmpDirCreator: fileutil.DefaultTmpDirCreator(),
+	}
 }
 
 func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -93,21 +100,32 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		cfg = c
 	}
-	if _, err := dockutil.Build(b.dockerCl, srcTmpDir, binTmpDir, cfg); err != nil {
-		http.Error(w, fmt.Sprintf("Error building (%s)", err), http.StatusInternalServerError)
-		return
-	}
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error opening completed binary (%s)", err), http.StatusInternalServerError)
-		return
-	}
-	files, err := fileutil.WalkAndExclude(binTmpDir, nil)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error listing all output binaries (%s)", err), http.StatusInternalServerError)
-		return
-	}
-	if err := tarutil.CreateArchiveFromFiles(w, files); err != nil {
-		http.Error(w, fmt.Sprintf("Error creating tar archive from files (%s)", err), http.StatusInternalServerError)
-		return
+
+	logsCh := make(chan dockbuild.Log)
+	resultCh := make(chan int)
+	errCh := make(chan error)
+	go dockutil.Build(b.dockerCl, b.goPath, srcTmpDir, binTmpDir, cfg, logsCh, resultCh, errCh)
+	for {
+		//TODO: stream logs!
+		select {
+		case err := <-errCh:
+			http.Error(w, fmt.Sprintf("Error building (%s)", err), http.StatusInternalServerError)
+			return
+		case code := <-resultCh:
+			if code == 0 {
+				files, err := fileutil.WalkAndExclude(binTmpDir, nil)
+				if err != nil {
+					http.Error(w, fmt.Sprintf("Error listing all output binaries (%s)", err), http.StatusInternalServerError)
+					return
+				}
+				if err := tarutil.CreateArchiveFromFiles(w, files); err != nil {
+					http.Error(w, fmt.Sprintf("Error creating tar archive from files (%s)", err), http.StatusInternalServerError)
+					return
+				}
+			} else {
+				http.Error(w, fmt.Sprint("Build failed with code %d", code), http.StatusInternalServerError)
+				return
+			}
+		}
 	}
 }
