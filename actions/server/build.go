@@ -44,6 +44,7 @@ func Build(c *cli.Context) {
 		os.Exit(1)
 	}
 
+	log.Info("Sending to server")
 	cl := rpc.NewHTTPClient(cfg.CI.Build.GetHost(), cfg.CI.Build.GetPort())
 	res, err := cl.Build(tarArchive, cfg.CI.Build.CrossCompile, cfg.CI.Build.Env)
 	if err != nil {
@@ -51,6 +52,7 @@ func Build(c *cli.Context) {
 		os.Exit(1)
 	}
 	defer res.Close()
+	log.Info("Writing result to %s", tarOutputFile)
 	if err := fileutil.CreateAndWrite(tarOutputFile, res); err != nil {
 		log.Err("writing the result to %s (%s)", tarOutputFile, err)
 		os.Exit(1)
