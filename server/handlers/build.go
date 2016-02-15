@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/arschles/gci/config"
-	"github.com/arschles/gci/log"
 	dockutil "github.com/arschles/gci/util/docker"
 	fileutil "github.com/arschles/gci/util/file"
 	tarutil "github.com/arschles/gci/util/tar"
@@ -41,13 +41,13 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	tmpDir, err := ioutil.TempDir(b.buildDir, tempDirPrefix)
 	if err != nil {
-		log.Err("creating temp directory under %s (%s)", b.buildDir, err)
+		log.Printf("Error creating temp directory under %s (%s)", b.buildDir, err)
 		http.Error(w, "error creating temp directory", http.StatusInternalServerError)
 		return
 	}
 	defer func() {
 		if err := os.RemoveAll(tmpDir); err != nil {
-			log.Err("Removing temporary build dir %s (%s)", tmpDir, err)
+			log.Printf("Error removing temporary build dir %s (%s)", tmpDir, err)
 		}
 	}()
 
@@ -58,7 +58,7 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			log.Err("Reading file (%s)", err)
+			log.Printf("Error reading file (%s)", err)
 			break
 		}
 		var gciFileBytes bytes.Buffer
@@ -71,8 +71,8 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		fileName := filepath.Join(tmpDir, hdr.Name)
 		if err := tarutil.CopyToFile(tr, fileName, otherWriters...); err != nil {
-			str := fmt.Sprintf("Copying %s to a file (%s)", hdr.Name, err)
-			log.Err(str)
+			str := fmt.Sprintf("Error copying %s to a file (%s)", hdr.Name, err)
+			log.Printf(str)
 			http.Error(w, str, http.StatusInternalServerError)
 			return
 		}
