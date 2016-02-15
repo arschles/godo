@@ -24,16 +24,12 @@ const (
 )
 
 type build struct {
-	goPath        string
-	buildDir      string
 	dockerCl      *docker.Client
 	tmpDirCreator fileutil.TmpDirCreator
 }
 
-func NewBuild(goPath, baseBuildDir string, dockerCl *docker.Client) http.Handler {
+func NewBuild(dockerCl *docker.Client) http.Handler {
 	return &build{
-		goPath:        goPath,
-		buildDir:      baseBuildDir,
 		dockerCl:      dockerCl,
 		tmpDirCreator: fileutil.DefaultTmpDirCreator(),
 	}
@@ -112,8 +108,10 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	go dockutil.Build(b.dockerCl, srcTmpDir, binTmpDir, packageName, containerGoPath, cfg, logsCh, resultCh, errCh)
 
 	for {
-		//TODO: stream logs!
 		select {
+		//TODO: stream logs to client!
+		case l := <-logsCh:
+			log.Println(l.Message())
 		case err := <-errCh:
 			http.Error(w, fmt.Sprintf("Error building (%s)", err), http.StatusInternalServerError)
 			return
@@ -129,7 +127,7 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			} else {
-				http.Error(w, fmt.Sprint("Build failed with code %d", code), http.StatusInternalServerError)
+				http.Error(w, fmt.Sprintf("Build failed with code %d", code), http.StatusInternalServerError)
 				return
 			}
 		}
