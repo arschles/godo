@@ -91,6 +91,12 @@ func Build(
 		return
 	}
 
+	defer func() {
+		if err := dockerCl.RemoveContainer(docker.RemoveContainerOpts{ID: container.ID, Force: true}); err != nil {
+			log.Printf("Error removing build container %s (%s)", container.ID, err)
+		}
+	}()
+
 	stdOut := build.NewChanWriter(logsCh)
 	stdErr := build.NewChanWriter(logsCh)
 	attachOpts := AttachToContainerOpts(container.ID, stdOut, stdErr)
