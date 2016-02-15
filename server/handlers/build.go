@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/arschles/gci/config"
+	"github.com/arschles/gci/server/common"
 	dockutil "github.com/arschles/gci/util/docker"
 	dockbuild "github.com/arschles/gci/util/docker/build"
 	fileutil "github.com/arschles/gci/util/file"
