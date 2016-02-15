@@ -1,6 +1,7 @@
 FROM ubuntu-debootstrap:14.04
 
 COPY ./gci gci
-RUN mv gci /bin
+COPY ./gci.yaml gci.yaml
+RUN mv gci /bin && mv gci.yaml /bin
 
 CMD gci
