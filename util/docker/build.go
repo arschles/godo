@@ -2,6 +2,7 @@ package docker
 
 import (
 	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/arschles/gci/config"
@@ -92,7 +93,7 @@ func Build(
 	}
 
 	defer func() {
-		if err := dockerCl.RemoveContainer(docker.RemoveContainerOpts{ID: container.ID, Force: true}); err != nil {
+		if err := dockerCl.RemoveContainer(docker.RemoveContainerOptions{ID: container.ID, Force: true}); err != nil {
 			log.Printf("Error removing build container %s (%s)", container.ID, err)
 		}
 	}()
