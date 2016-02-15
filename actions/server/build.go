@@ -11,6 +11,7 @@ import (
 	fileutil "github.com/arschles/gci/util/file"
 	tarutil "github.com/arschles/gci/util/tar"
 	"github.com/codegangsta/cli"
+	humanize "github.com/dustin/go-humanize"
 )
 
 const (
@@ -32,13 +33,15 @@ func Build(c *cli.Context) {
 
 	paths := actions.PathsOrDie()
 
-	log.Info("Creating tar archive of current directory")
+	log.Info("Walking current directory...")
 
-	files, err := fileutil.WalkAndExclude(".", cfg.CI.Build.Excludes)
+	files, err := fileutil.WalkAndExclude(paths.CWD, true, cfg.CI.Build.Excludes)
 	if err != nil {
 		log.Err("walking %s to get files to upload to the server (%s)", wd, err)
 		os.Exit(1)
 	}
+
+	log.Info("Archiving %d files...", len(files))
 
 	tarArchive := new(bytes.Buffer)
 	if err := tarutil.CreateArchiveFromFiles(tarArchive, files); err != nil {
@@ -53,7 +56,7 @@ func Build(c *cli.Context) {
 	}
 	defer fd.Close()
 
-	log.Info("Sending to server")
+	log.Info("Sending %s tar archive to server", humanize.Bytes(uint64(tarArchive.Len())))
 	cl := rpc.NewHTTPClient(cfg.CI.Build.GetHost(), cfg.CI.Build.GetPort())
 	if err := cl.Build(tarArchive, fd, cfg.CI.Build.CrossCompile, paths.PackageName, cfg.CI.Build.Env); err != nil {
 		log.Err("building on the server (%s)", err)
