@@ -24,7 +24,6 @@ _testmain.go
 *.prof
 example/example
 gci
-vendor
 gci-test
 gci_*
 gci-server-build.tar
