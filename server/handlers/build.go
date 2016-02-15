@@ -45,6 +45,7 @@ func (b build) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Err("Removing temporary build dir %s (%s)", tmpDir, err)
 		}
 	}()
+
 	cfg := config.Empty()
 	configFileFound := false
 	for {
