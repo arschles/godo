@@ -52,6 +52,13 @@ func main() {
 			Description: "This command runs the equivalent of 'docker push $IMG_NAME'",
 			Action:      actions.DockerPush,
 		},
+		{
+			Name:        "custom",
+			Aliases:     []string{"c"},
+			Usage:       "Run a custom target",
+			Description: "Run a custom build target.",
+			Action:      actions.Custom,
+		},
 	}
 
 	app.Before = func(c *cli.Context) error {

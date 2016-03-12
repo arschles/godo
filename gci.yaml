@@ -24,6 +24,14 @@ docker:
         - vendor
   push:
     auth-file-location: ~/.docker/config.json
+custom:
+  - name: hello-world
+    image-name: ubuntu
+    image-tag: "14.04"
+    command: "echo 'hello world'"
+    mounts:
+      - host: vendor
+        container: /vendored
 ci:
   server:
     host: 0.0.0.0

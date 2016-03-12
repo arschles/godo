@@ -57,11 +57,12 @@ func Empty() *File {
 }
 
 type File struct {
-	Version string `yaml:"version"`
-	Build   Build  `yaml:"build"`
-	Test    Test   `yaml:"test"`
-	Docker  Docker `yaml:"docker"`
-	CI      ci.CI  `yaml:"ci"`
+	Version string         `yaml:"version"`
+	Build   Build          `yaml:"build"`
+	Test    Test           `yaml:"test"`
+	Docker  Docker         `yaml:"docker"`
+	Custom  []CustomTarget `yaml:"custom"`
+	CI      ci.CI          `yaml:"ci"`
 }
 
 func (f File) String() string {
