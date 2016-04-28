@@ -19,7 +19,8 @@ func goxOutputTpl(binPath string) string {
 	return fmt.Sprintf("%s_{{.OS}}_{{.Arch}}", binPath)
 }
 
-func imageName(crossCompile bool) string {
+// ImageName returns the image name to use, given whether we're trying to cross-compile or not
+func ImageName(crossCompile bool) string {
 	if crossCompile {
 		return GoxImage
 	}
@@ -36,6 +37,7 @@ func command(crossCompile bool, binaryPath string) []string {
 // Build runs the build of rootDir inside a Docker container, putting binaries into outDir
 func Build(
 	dockerCl *docker.Client,
+	imgName,
 	rootDir,
 	outDir,
 	packageName,
@@ -46,7 +48,6 @@ func Build(
 	errCh chan<- error) {
 
 	projName := filepath.Base(rootDir)
-	imgName := imageName(cfg.Build.CrossCompile)
 	containerName := fmt.Sprintf("gci-build-%s-%s", projName, uuid.New())
 	logsCh <- build.LogFromString("Creating container %s to build %s", containerName, packageName)
 
