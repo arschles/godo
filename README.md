@@ -33,14 +33,14 @@ Writing code for GCI is simple. Since it's a build tool, it can bootstrap itself
 
 Assuming you don't have a `gci` binary available, you can build it with the standard `go` toolchain as well. Here's what you'll need:
 
-- Go 1.5+
+- Go 1.6+
 - [Glide](https://github.com/Masterminds/glide) 0.8+
 
 Once you ensure that you have both dependencies, simply:
 
 ```console
-glide up
-GO15VENDOREXPERIMENT=1 go install
+glide install
+go install
 ```
 
 Ensure that you have `$GOPATH/bin` somewhere on your `$PATH`, and now you can execute `gci` targets.
