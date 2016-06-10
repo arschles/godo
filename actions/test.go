@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -13,11 +14,13 @@ import (
 	"github.com/pborman/uuid"
 )
 
+// Test is the CLI action for 'gci test'
 func Test(c *cli.Context) {
 	cfg := config.ReadOrDie(c.String(FlagConfigFile))
 	paths := PathsOrDie()
 	dockerClient := dockutil.ClientOrDie()
 	projName := filepath.Base(paths.CWD)
+	imgName := dockutil.GolangImage
 	name := fmt.Sprintf("gci-test-%s-%s", projName, uuid.New())
 	cmd := []string{"go", "test"}
 	for _, path := range cfg.Test.GetPaths() {
@@ -35,7 +38,7 @@ func Test(c *cli.Context) {
 		},
 	}
 	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(
-		dockutil.GolangImage,
+		imgName,
 		name,
 		cmd,
 		cfg.Test.Env,
@@ -43,6 +46,14 @@ func Test(c *cli.Context) {
 		containerGoPath,
 		workDir,
 	)
+
+	if err := dockutil.EnsureImage(dockerClient, imgName, func() (io.Writer, error) {
+		log.Info("Pulling image %s before testing", imgName)
+		return os.Stdout, nil
+	}); err != nil {
+		log.Err("Error pulling image %s", imgName)
+	}
+
 	container, err := dockerClient.CreateContainer(createContainerOpts)
 	if err != nil {
 		log.Err("creating container [%s]", err)
