@@ -20,17 +20,11 @@ func goxOutputTpl(binPath string) string {
 }
 
 // ImageName returns the image name to use, given whether we're trying to cross-compile or not
-func ImageName(crossCompile bool) string {
-	if crossCompile {
-		return GoxImage
-	}
+func ImageName() string {
 	return GolangImage
 }
 
-func command(crossCompile bool, binaryPath string) []string {
-	if crossCompile {
-		return []string{"gox", "-output", goxOutputTpl(binaryPath)}
-	}
+func command(binaryPath string) []string {
 	return []string{"go", "build", "-o", binaryPath}
 }
 
@@ -52,8 +46,9 @@ func Build(
 	logsCh <- build.LogFromString("Creating container %s to build %s", containerName, packageName)
 
 	binaryName := cfg.Build.GetOutputBinary(projName)
-	cmd := command(cfg.Build.CrossCompile, fmt.Sprintf("%s/%s", containerOutDir, binaryName))
+	cmd := command(fmt.Sprintf("%s/%s", containerOutDir, binaryName))
 	env := cfg.Build.Env
+	env = append(env, "GOPATH="+containerGoPath)
 
 	containerWorkDir := fmt.Sprintf("%s/src/%s", containerGoPath, packageName)
 
@@ -77,7 +72,6 @@ func Build(
 		cmd,
 		env,
 		mounts,
-		containerGoPath,
 		containerWorkDir,
 	)
 	container, err := dockerCl.CreateContainer(createContainerOpts)

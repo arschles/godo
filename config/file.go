@@ -3,7 +3,6 @@ package config
 import (
 	"io/ioutil"
 
-	"github.com/arschles/gci/config/ci"
 	"github.com/arschles/gci/log"
 	"gopkg.in/yaml.v2"
 )
@@ -21,7 +20,7 @@ func ReadBytes(b []byte) (*File, error) {
 	return &cf, nil
 }
 
-// GetFile attempts to get and decode the File at name. If name is empty,
+// Read attempts to get and decode the File at name. If name is empty,
 // tries DefaultFileNameYaml and then defaultFileNameYml. If no file at name exists,
 // or name was empty and neither DefaultFileNameYaml nor defaultFileNameYml exists,
 // returns ErrNoFile
@@ -30,8 +29,8 @@ func Read(name string) (*File, error) {
 	var err error
 	fileNames := []string{name, DefaultFileNameYaml, DefaultFileNameYml}
 	for _, fileName := range fileNames {
-		b, err := ioutil.ReadFile(fileName)
-		if err == nil {
+		b, readFileErr := ioutil.ReadFile(fileName)
+		if readFileErr == nil {
 			fileBytes = b
 			break
 		}
@@ -52,26 +51,27 @@ func ReadOrDie(name string) *File {
 	return cf
 }
 
+// Empty returns an empty config file
 func Empty() *File {
 	return &File{}
 }
 
+// File is the complete in-memory representation of a config file
 type File struct {
 	Version string         `yaml:"version"`
 	Build   Build          `yaml:"build"`
 	Test    Test           `yaml:"test"`
 	Docker  Docker         `yaml:"docker"`
 	Custom  []CustomTarget `yaml:"custom"`
-	CI      ci.CI          `yaml:"ci"`
 }
 
 func (f File) String() string {
 	return "GCI Config file version " + f.Version
 }
 
+// Build is the configuration for a build
 type Build struct {
 	OutputBinary string   `yaml:"output-binary"`
-	CrossCompile bool     `yaml:"cross-compile"`
 	Env          []string `yaml:"env"`
 }
 
@@ -82,6 +82,7 @@ func (b Build) GetOutputBinary(pathBase string) string {
 	return b.OutputBinary
 }
 
+// Test is the configuration for a test
 type Test struct {
 	Paths []string `yaml:"paths"`
 	Env   []string `yaml:"env"`

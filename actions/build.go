@@ -17,7 +17,7 @@ func Build(c *cli.Context) {
 	paths := PathsOrDie()
 
 	dockerClient := dockutil.ClientOrDie()
-	imgName := dockutil.ImageName(cfg.Build.CrossCompile)
+	imgName := dockutil.ImageName()
 
 	if err := dockutil.EnsureImage(dockerClient, imgName, func() (io.Writer, error) {
 		log.Info("Pulling image %s before building", imgName)

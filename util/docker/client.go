@@ -7,6 +7,7 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
+// ClientOrDie creates a new Docker client. If one couldn't be created, logs and error and exits with status code 1
 func ClientOrDie() *docker.Client {
 	cl, err := docker.NewClientFromEnv()
 	if err != nil {
