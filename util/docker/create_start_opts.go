@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	defaultEnv = []string{"GO15VENDOREXPERIMENT=1", "CGO_ENABLED=0", "GOPATH=/go"}
+	defaultEnv = []string{"GO15VENDOREXPERIMENT=1", "GOPATH=/go"}
 )
 
 // CreateAndStartContainerOpts creates a container from imageName with the name containerName. The container will execute cmd with the given enviroment variables (env).
@@ -18,7 +18,6 @@ func CreateAndStartContainerOpts(
 	cmd []string,
 	env []string,
 	mounts []docker.Mount,
-	containerGoPath string,
 	workDir string,
 ) (docker.CreateContainerOptions, docker.HostConfig) {
 
@@ -30,7 +29,6 @@ func CreateAndStartContainerOpts(
 	for i, mount := range mounts {
 		binds[i] = fmt.Sprintf("%s:%s", mount.Source, mount.Destination)
 	}
-	env = append(env, "GOPATH="+containerGoPath)
 
 	hostConfig := docker.HostConfig{
 		Binds: binds,

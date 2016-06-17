@@ -37,13 +37,13 @@ func Test(c *cli.Context) {
 			Mode:        "rx",
 		},
 	}
+	cfg.Test.Env = append(cfg.Test.Env, "GOPATH="+containerGoPath)
 	createContainerOpts, hostConfig := dockutil.CreateAndStartContainerOpts(
 		imgName,
 		name,
 		cmd,
 		cfg.Test.Env,
 		mounts,
-		containerGoPath,
 		workDir,
 	)
 
@@ -62,8 +62,8 @@ func Test(c *cli.Context) {
 
 	log.Msg(dockutil.CmdStr(createContainerOpts, hostConfig))
 
-	if err := dockerClient.StartContainer(container.ID, &hostConfig); err != nil {
-		log.Err("starting container [%s]", err)
+	if startErr := dockerClient.StartContainer(container.ID, &hostConfig); startErr != nil {
+		log.Err("starting container [%s]", startErr)
 		os.Exit(1)
 	}
 

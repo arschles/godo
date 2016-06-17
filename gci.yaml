@@ -1,7 +1,6 @@
 version: 0.0.1
 build:
   output-binary: gci
-  cross-compile: false
   env:
     - GOOS=linux
     - GOARCH=amd64
@@ -11,7 +10,6 @@ test:
     - ./config/...
     - ./util/...
     - ./log/...
-    - ./server/...
     - ./tpl/...
     - .
 docker:
@@ -24,16 +22,25 @@ docker:
         - vendor
   push:
     auth-file-location: ~/.docker/config.json
-ci:
-  server:
-    host: 0.0.0.0
-    port: 8084
-  build:
-    port: 8084
-    exclude:
-      - name: gci
-      - name: README.md
-      - name: LICENSE
-      - name: Dockerfile
-      - name: .git
-        recursive: true
+custom:
+  - name: hello-world
+    description: print "hello world" in an ubuntu container
+    image-name: ubuntu
+    image-tag: "14.04"
+    command: "echo 'hello world'"
+    mount-target: /pwd
+    env: []
+  - name: bootstrap
+    description: bootstrap all dependencies for this project
+    image-name: quay.io/deis/go-dev
+    image-tag: "0.13.0"
+    command: "glide install"
+    mount-target: /go/src/github.com/arschles/gci
+    env: ["GOPATH=/go"]
+  - name: cross-compile
+    description: cross compile GCI using gox
+    image-name: quay.io/deis/go-dev
+    image-tag: "0.13.0"
+    command: gox .
+    mount-target: /go/src/github.com/arschles/gci
+    env: ["GOPATH=/go"]

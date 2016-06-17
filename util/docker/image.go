@@ -19,7 +19,7 @@ type Image struct {
 }
 
 // ParseImageFromName parses a raw image name string into an Image
-func ParseImageFromName(name string, shortTag bool) (*Image, error) {
+func ParseImageFromName(name string) (*Image, error) {
 	spl := strings.Split(name, "/")
 	splLast := strings.Split(spl[len(spl)-1], ":")
 	tag := "latest"
