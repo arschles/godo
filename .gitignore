@@ -30,3 +30,4 @@ gci-server-build.tar
 gci-bin-*
 gci-src-*
 vendor
+_dist
