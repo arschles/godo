@@ -29,6 +29,8 @@ func Run(cl *docker.Client, image *Image, taskName, cwd, containerMount, cmd str
 		return 0, err
 	}
 
+	defer cl.RemoveContainer(docker.RemoveContainerOptions{ID: container.ID, Force: true})
+
 	log.Msg(CmdStr(createContainerOpts, hostConfig))
 
 	if startErr := cl.StartContainer(container.ID, &hostConfig); startErr != nil {
