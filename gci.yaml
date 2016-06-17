@@ -41,6 +41,6 @@ custom:
     description: cross compile GCI using gox
     image-name: quay.io/deis/go-dev
     image-tag: "0.13.0"
-    command: gox -verbose -os="linux darwin" -arch="amd64 386" -output="_dist/gci-{{.OS}}-{{.Arch}}" .
+    command: gox .
     mount-target: /go/src/github.com/arschles/gci
     env: ["GOPATH=/go"]
