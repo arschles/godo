@@ -1,4 +1,4 @@
-package build
+package docker
 
 // ChanWriter returns an io.Writer that sends all of its writes as log messages to ch
 type ChanWriter struct {

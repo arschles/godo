@@ -48,10 +48,41 @@ func Custom(c *cli.Context) {
 	dockerCl := docker.ClientOrDie()
 	paths := PathsOrDie()
 	log.Info("executing %s in a %s:%s container", customName, target.ImageName, target.ImageTag)
-	exitCode, runErr := docker.Run(dockerCl, dockerImage, customName, paths.CWD, target.MountTarget, target.Command, target.Envs, os.Stdout)
-	if runErr != nil {
-		log.Err("running '%s' (%s)", target.Command, runErr)
-		os.Exit(1)
+
+	rmContainerCh := make(chan func())
+	stdOutCh := make(chan docker.Log)
+	stdErrCh := make(chan docker.Log)
+	exitCodeCh := make(chan int)
+	errCh := make(chan error)
+	go docker.Run(
+		dockerCl,
+		dockerImage,
+		customName,
+		paths.CWD,
+		target.MountTarget,
+		target.Command,
+		target.Envs,
+		rmContainerCh,
+		stdOutCh,
+		stdErrCh,
+		exitCodeCh,
+		errCh,
+	)
+
+	for {
+		select {
+		case fn := <-rmContainerCh:
+			defer fn()
+		case l := <-stdOutCh:
+			log.Info("%s", l)
+		case l := <-stdErrCh:
+			log.Warn("%s", l)
+		case i := <-exitCodeCh:
+			log.Info("exited with code %d", i)
+			return
+		case err := <-errCh:
+			log.Err("%s", err)
+			return
+		}
 	}
-	log.Info("'%s' exited with code %d", target.Command, exitCode)
 }

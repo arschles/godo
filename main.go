@@ -32,13 +32,6 @@ func main() {
 			Action:      actions.Build,
 		},
 		{
-			Name:        "test",
-			Aliases:     []string{"t"},
-			Usage:       "Test your project",
-			Description: "This command runs the equivalent of 'go test ./...'",
-			Action:      actions.Test,
-		},
-		{
 			Name:        "docker",
 			Aliases:     []string{"d"},
 			Description: "Docker related actions",

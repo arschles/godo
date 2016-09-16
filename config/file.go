@@ -60,7 +60,6 @@ func Empty() *File {
 type File struct {
 	Version string         `yaml:"version"`
 	Build   Build          `yaml:"build"`
-	Test    Test           `yaml:"test"`
 	Docker  Docker         `yaml:"docker"`
 	Custom  []CustomTarget `yaml:"custom"`
 }
@@ -80,17 +79,4 @@ func (b Build) GetOutputBinary(pathBase string) string {
 		return pathBase
 	}
 	return b.OutputBinary
-}
-
-// Test is the configuration for a test
-type Test struct {
-	Paths []string `yaml:"paths"`
-	Env   []string `yaml:"env"`
-}
-
-func (t Test) GetPaths() []string {
-	if len(t.Paths) == 0 {
-		return []string{"./..."}
-	}
-	return t.Paths
 }

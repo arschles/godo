@@ -4,24 +4,23 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-// AttachAndWait attaches to, and waits for, the container with the given ID using the given client, according to the given options.
-// The first returned channel will receive if there was an error attaching. The second channel returned will receive if there was an error waiting. The 3rd channel will return with the exit code.
-func AttachAndWait(dockerClient *docker.Client, containerID string, attachOpts docker.AttachToContainerOptions) (<-chan int, <-chan error, error) {
+// AttachAndWait attaches to and waits for the container with the given ID using the given client, according to the given options. This function should be started in a goroutine. exitCodeCh will receive if the container completed execution. errCh may receive if the attach couldn't be completed or the container didn't complete properly. if errCh receives, exitCodeCh will not receive
+func AttachAndWait(
+	dockerClient *docker.Client,
+	containerID string,
+	attachOpts docker.AttachToContainerOptions,
+	exitCodeCh chan<- int,
+	errCh chan<- error,
+) {
 	if err := dockerClient.AttachToContainer(attachOpts); err != nil {
-		return nil, nil, err
+		errCh <- err
+		return
 	}
 
-	waitErrCh := make(chan error)
-	waitCodeCh := make(chan int)
-
-	go func() {
-		code, err := dockerClient.WaitContainer(containerID)
-		if err != nil {
-			waitErrCh <- err
-			return
-		}
-		waitCodeCh <- code
-	}()
-
-	return waitCodeCh, waitErrCh, nil
+	code, err := dockerClient.WaitContainer(containerID)
+	if err != nil {
+		errCh <- err
+		return
+	}
+	exitCodeCh <- code
 }

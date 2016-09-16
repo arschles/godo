@@ -1,38 +1,63 @@
-hash: 7f44d50b18ccf7bd1fde73d1f172714175f2f7d735df95a9ba6741668d445f8c
-updated: 2016-02-15T14:05:42.860278347-08:00
+hash: 98f116ea7adf72ed658de56ff4229504bf06fcc30b22b9119d4f44d72f56120b
+updated: 2016-09-16T12:11:01.719136185-07:00
 imports:
 - name: github.com/arschles/assert
-  version: 6882f85ccdc7c1822b146d1a6b0c2c48f91b5140
+  version: fc2da9844984ce5093111298174706e14d4c0c47
 - name: github.com/aybabtme/rgbterm
   version: c9a1bdb3761d262af7109d6463977046dafde36e
 - name: github.com/codegangsta/cli
   version: 0302d3914d2a6ad61404584cdae6e6dbc9c03599
-- name: github.com/dustin/go-humanize
-  version: 8929fe90cee4b2cb9deb468b51fb34eba64d1bf0
-- name: github.com/fsouza/go-dockerclient
-  version: e0d22d30691bcc996eca51f729a4777b8c7dc2a8
+- name: github.com/docker/docker
+  version: 8a7006ff8e74477c4ad85bde2e2094f7b40244da
   subpackages:
-  - external/github.com/docker/docker/opts
-  - external/github.com/docker/docker/pkg/archive
-  - external/github.com/docker/docker/pkg/fileutils
-  - external/github.com/docker/docker/pkg/homedir
-  - external/github.com/docker/docker/pkg/stdcopy
-  - external/github.com/hashicorp/go-cleanhttp
-  - external/github.com/docker/docker/pkg/parsers
-  - external/github.com/docker/docker/pkg/ulimit
-  - external/github.com/Sirupsen/logrus
-  - external/github.com/docker/docker/pkg/idtools
-  - external/github.com/docker/docker/pkg/ioutils
-  - external/github.com/docker/docker/pkg/pools
-  - external/github.com/docker/docker/pkg/promise
-  - external/github.com/docker/docker/pkg/system
-  - external/github.com/opencontainers/runc/libcontainer/user
+  - api/types/filters
+  - api/types/versions
+  - opts
+  - pkg/archive
+  - pkg/fileutils
+  - pkg/homedir
+  - pkg/idtools
+  - pkg/ioutils
+  - pkg/longpath
+  - pkg/pools
+  - pkg/promise
+  - pkg/stdcopy
+  - pkg/system
+- name: github.com/docker/engine-api
+  version: 4290f40c056686fcaa5c9caf02eac1dde9315adf
+  subpackages:
+  - types/mount
+  - types/swarm
+- name: github.com/docker/go-units
+  version: f2145db703495b2e525c59662db69a7344b00bb8
+- name: github.com/dustin/go-humanize
+  version: 2fcb5204cdc65b4bec9fd0a87606bb0d0e3c54e8
+- name: github.com/fsouza/go-dockerclient
+  version: 01804dec8a84d0a77e63611f2b62d33e9bb2b64a
+- name: github.com/hashicorp/go-cleanhttp
+  version: ad28ea4487f05916463e2423a55166280e8254b5
 - name: github.com/labstack/gommon
   version: cc4f2986014fdd1f2e7800b3c082af17cad28db2
   subpackages:
   - color
+- name: github.com/opencontainers/runc
+  version: 8b4850b8cdafba0f0f0f47b308dec6968818ea09
+  subpackages:
+  - libcontainer/system
+  - libcontainer/user
 - name: github.com/pborman/uuid
-  version: cd53251766d76cf1969596428dc09c7b97956eeb
+  version: b984ec7fa9ff9e428bd0cf0abf429384dfbe3e37
+- name: github.com/Sirupsen/logrus
+  version: 3ec0642a7fb6488f65b06f9040adc67e3990296a
+- name: golang.org/x/net
+  version: 71a035914f99bb58fe82eac0f1289f10963d876c
+  subpackages:
+  - context
+  - context/ctxhttp
+- name: golang.org/x/sys
+  version: 8f0908ab3b2457e2e15403d3697c9ef5cb4b57a9
+  subpackages:
+  - unix
 - name: gopkg.in/yaml.v2
-  version: f7716cbe52baa25d2e9b0d0da546fcf909fc16b4
-devImports: []
+  version: 31c299268d302dd0aa9a0dcf765a3d58971ac83f
+testImports: []

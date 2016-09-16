@@ -1,13 +1,13 @@
 package actions
 
 import (
-	"io"
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/log"
-	dockutil "github.com/arschles/gci/util/docker"
-	dockbuild "github.com/arschles/gci/util/docker/build"
+	"github.com/arschles/gci/util/docker"
 	"github.com/codegangsta/cli"
 )
 
@@ -16,48 +16,51 @@ func Build(c *cli.Context) {
 	cfg := config.ReadOrDie(c.String(FlagConfigFile))
 	paths := PathsOrDie()
 
-	dockerClient := dockutil.ClientOrDie()
-	imgName := dockutil.ImageName()
-
-	if err := dockutil.EnsureImage(dockerClient, imgName, func() (io.Writer, error) {
-		log.Info("Pulling image %s before building", imgName)
-		return os.Stdout, nil
-	}); err != nil {
-		log.Err("Error pulling image %s", imgName)
+	dockerClient := docker.ClientOrDie()
+	img, err := docker.ParseImageFromName(docker.GolangImage)
+	if err != nil {
+		log.Err("error parsing docker image %s (%s)", docker.GolangImage, err)
 		os.Exit(1)
 	}
 
-	logsCh := make(chan dockbuild.Log)
-	resultCh := make(chan int)
+	rmContainerCh := make(chan func())
+	stdOutCh := make(chan docker.Log)
+	stdErrCh := make(chan docker.Log)
+	exitCodeCh := make(chan int)
 	errCh := make(chan error)
-	go dockutil.Build(
+
+	projName := filepath.Base(paths.CWD)
+	binaryName := cfg.Build.GetOutputBinary(projName)
+	go docker.Run(
 		dockerClient,
-		imgName,
+		img,
+		"build",
 		paths.CWD,
-		paths.CWD,
-		paths.PackageName,
-		"/go",
-		cfg,
-		logsCh,
-		resultCh,
+		docker.ContainerGopath(paths.PackageName),
+		fmt.Sprintf("go build -o %s .", binaryName),
+		cfg.Build.Env,
+		rmContainerCh,
+		stdOutCh,
+		stdErrCh,
+		exitCodeCh,
 		errCh,
 	)
 
 	for {
 		select {
-		case l := <-logsCh:
-			log.Info(l.Message())
-		case code := <-resultCh:
-			if code == 0 {
-				log.Info("Success")
-				os.Exit(0)
-			} else {
-				log.Err("Build failed with code %d", code)
-				os.Exit(code)
-			}
+		case rmContainerFn := <-rmContainerCh:
+			defer rmContainerFn()
+		case l := <-stdOutCh:
+			log.Info("%s", l)
+		case l := <-stdErrCh:
+			log.Warn("%s", l)
 		case err := <-errCh:
-			log.Err("Build failed (%s)", err)
-			os.Exit(1)
+			log.Err("%s", err)
+			return
+		case i := <-exitCodeCh:
+			log.Info("exited with code %d", i)
+			return
 		}
 	}
+
 }

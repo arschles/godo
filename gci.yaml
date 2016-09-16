@@ -1,17 +1,9 @@
 version: 0.0.1
 build:
-  output-binary: gci
+  output-binary: gci-test
   env:
-    - GOOS=linux
+    - GOOS=darwin
     - GOARCH=amd64
-test:
-  paths:
-    - ./actions/...
-    - ./config/...
-    - ./util/...
-    - ./log/...
-    - ./tpl/...
-    - .
 docker:
   image-name: quay.io/arschles/gci
   tag: 0.0.1
@@ -30,6 +22,12 @@ custom:
     command: "echo 'hello world'"
     mount-target: /pwd
     env: []
+  - name: ls
+    image-name: ubuntu
+    image-tag: "14.04"
+    command: "ls -la"
+    mount-target: "/pwd"
+    env: []
   - name: bootstrap
     description: bootstrap all dependencies for this project
     image-name: quay.io/deis/go-dev
@@ -44,3 +42,9 @@ custom:
     command: gox .
     mount-target: /go/src/github.com/arschles/gci
     env: ["GOPATH=/go"]
+  - name: test
+    description: test
+    image-name: quay.io/deis/go-dev
+    image-tag: 0.17.0
+    command: go test ./util/... ./tpl/... ./log/... ./config/... ./actions/... .
+    mount-target: /go/src/github.com/arschles/gci
