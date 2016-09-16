@@ -17,9 +17,10 @@ func Build(c *cli.Context) {
 	paths := PathsOrDie()
 
 	dockerClient := docker.ClientOrDie()
-	img, err := docker.ParseImageFromName(docker.GolangImage)
+	imgStr := fmt.Sprintf("%s:%s", cfg.Build.ImageName, cfg.Build.ImageTag)
+	img, err := docker.ParseImageFromName(imgStr)
 	if err != nil {
-		log.Err("error parsing docker image %s (%s)", docker.GolangImage, err)
+		log.Err("error parsing docker image %s (%s)", imgStr, err)
 		os.Exit(1)
 	}
 
@@ -36,7 +37,7 @@ func Build(c *cli.Context) {
 		img,
 		"build",
 		paths.CWD,
-		docker.ContainerGopath(paths.PackageName),
+		docker.ContainerGopath(cfg.Build.Gopath, paths.PackageName),
 		fmt.Sprintf("go build -o %s .", binaryName),
 		cfg.Build.Env,
 		rmContainerCh,

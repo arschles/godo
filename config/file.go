@@ -70,6 +70,9 @@ func (f File) String() string {
 
 // Build is the configuration for a build
 type Build struct {
+	ImageName    string   `yaml:"image-name"`
+	ImageTag     string   `yaml:"image-tag"`
+	Gopath       string   `json:"gopath"`
 	OutputBinary string   `yaml:"output-binary"`
 	Env          []string `yaml:"env"`
 }
