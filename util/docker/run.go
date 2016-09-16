@@ -48,7 +48,11 @@ func Run(
 		errCh <- err
 	}
 
-	defer cl.RemoveContainer(docker.RemoveContainerOptions{ID: container.ID, Force: true})
+	defer func() {
+		if err := cl.RemoveContainer(docker.RemoveContainerOptions{ID: container.ID, Force: true}); err != nil {
+			log.Warn("Error removing container %s (%s)", container.ID, err)
+		}
+	}()
 
 	log.Debug(CmdStr(createContainerOpts, hostConfig))
 
