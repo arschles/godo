@@ -17,6 +17,10 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
+func dockerBuildOne(cl *docker.Client, imgBuild *config.ImageBuild) error {
+
+}
+
 // DockerBuild is the CLI action for 'gci docker-build'
 func DockerBuild(c *cli.Context) {
 	dockerClient := dockutil.ClientOrDie()

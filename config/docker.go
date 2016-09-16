@@ -7,34 +7,38 @@ import (
 )
 
 type Docker struct {
-	ImageName string      `yaml:"image-name"`
-	Tag       string      `yaml:"tag"`
-	Build     DockerBuild `yaml:"build"`
-	Push      DockerPush  `yaml:"push"`
+	Build DockerBuild `yaml:"build"`
+	Push  DockerPush  `yaml:"push"`
 }
 
-func (d Docker) GetTag() string {
-	if d.Tag == "" {
+type ImageBuild struct {
+	Name    string             `yaml:"name"`
+	Tag     string             `yaml:"tag"`
+	Context DockerBuildContext `yaml:"context"`
+}
+
+func (i ImageBuild) GetTag() string {
+	if i.Tag == "" {
 		return "latest"
 	}
-	return d.Tag
+	return i.Tag
+}
+
+func (i ImageBuild) GetDockerfileLocation() string {
+	if i.Context.DockerfileLocation == "" {
+		return "./Dockerfile"
+	}
+	return i.Context.DockerfileLocation
 }
 
 type DockerBuild struct {
-	DockerfileLocation string             `yaml:"dockerfile-location"`
-	Context            DockerBuildContext `yaml:"context"`
-}
-
-func (d DockerBuild) GetDockerfileLocation() string {
-	if d.DockerfileLocation == "" {
-		return "./Dockerfile"
-	}
-	return d.DockerfileLocation
+	Images []ImageBuild `yaml:"images"`
 }
 
 type DockerBuildContext struct {
-	Directory string   `yaml:"dir"`
-	Skips     []string `yaml:"skip"`
+	Directory          string   `yaml:"dir"`
+	DockerfileLocation string   `yaml:"dockerfile-location"`
+	Skips              []string `yaml:"skip"`
 }
 
 func (d DockerBuildContext) GetDirectory() string {
@@ -52,8 +56,21 @@ func (d DockerBuildContext) GetSkips() map[string]struct{} {
 	return ret
 }
 
+type ImagePush struct {
+	Name string `yaml:"name"`
+	Tag  string `yaml:"tag"`
+}
+
+func (i ImagePush) GetTag() string {
+	if i.Tag == "" {
+		return "latest"
+	}
+	return i.Tag
+}
+
 type DockerPush struct {
-	AuthFileLocation string `json:"auth-file-location"`
+	AuthFileLocation string      `json:"auth-file-location"`
+	Images           []ImagePush `yaml:"images"`
 }
 
 func (d DockerPush) GetAuthFileLocation() string {
