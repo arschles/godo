@@ -43,7 +43,7 @@ func CreateAndStartContainerOpts(
 			Mounts:     mounts,
 			WorkingDir: workDir,
 		},
-		HostConfig: &docker.HostConfig{},
+		HostConfig: &hostConfig,
 	}
 	return createOpts, hostConfig
 }
