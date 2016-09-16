@@ -57,6 +57,7 @@ func Run(
 	log.Debug(CmdStr(createContainerOpts, hostConfig))
 
 	attachOpts := AttachToContainerOpts(container.ID, NewChanWriter(stdOut), NewChanWriter(stdErr))
+	// attach before the container starts, so we get all the logs etc...
 	go AttachAndWait(cl, container.ID, attachOpts, exitCodeCh, errCh)
 
 	if startErr := cl.StartContainer(container.ID, &hostConfig); startErr != nil {
