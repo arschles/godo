@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/arschles/gci/config"
-	"github.com/arschles/gci/util/docker/build"
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/pborman/uuid"
 )
@@ -19,13 +18,12 @@ func goxOutputTpl(binPath string) string {
 	return fmt.Sprintf("%s_{{.OS}}_{{.Arch}}", binPath)
 }
 
-// ImageName returns the image name to use, given whether we're trying to cross-compile or not
-func ImageName() string {
-	return GolangImage
-}
-
 func command(binaryPath string) []string {
 	return []string{"go", "build", "-o", binaryPath}
+}
+
+func ContainerGopath(packageName string) string {
+	return fmt.Sprintf("/go/src/%s", packageName)
 }
 
 // Build runs the build of rootDir inside a Docker container, putting binaries into outDir
@@ -37,13 +35,13 @@ func Build(
 	packageName,
 	containerGoPath string,
 	cfg *config.File,
-	logsCh chan<- build.Log,
+	logsCh chan<- Log,
 	resultCh chan<- int,
 	errCh chan<- error) {
 
 	projName := filepath.Base(rootDir)
 	containerName := fmt.Sprintf("gci-build-%s-%s", projName, uuid.New())
-	logsCh <- build.LogFromString("Creating container %s to build %s", containerName, packageName)
+	logsCh <- LogFromString("Creating container %s to build %s", containerName, packageName)
 
 	binaryName := cfg.Build.GetOutputBinary(projName)
 	cmd := command(fmt.Sprintf("%s/%s", containerOutDir, binaryName))
@@ -80,7 +78,7 @@ func Build(
 		return
 	}
 
-	logsCh <- build.LogFromString(CmdStr(createContainerOpts, hostConfig))
+	logsCh <- LogFromString(CmdStr(createContainerOpts, hostConfig))
 
 	if err := dockerCl.StartContainer(container.ID, &hostConfig); err != nil {
 		errCh <- fmt.Errorf("error starting container (%s)", err)
@@ -93,10 +91,12 @@ func Build(
 		}
 	}()
 
-	stdOut := build.NewChanWriter(logsCh)
-	stdErr := build.NewChanWriter(logsCh)
+	stdOut := NewChanWriter(logsCh)
+	stdErr := NewChanWriter(logsCh)
 	attachOpts := AttachToContainerOpts(container.ID, stdOut, stdErr)
-	waitCodeCh, waitErrCh, err := AttachAndWait(dockerCl, container.ID, attachOpts)
+	waitCodeCh := make(chan int)
+	waitErrCh := make(chan error)
+	go AttachAndWait(dockerCl, container.ID, attachOpts, waitCodeCh, waitErrCh)
 
 	if err != nil {
 		errCh <- fmt.Errorf("error attaching to the build container (%s)", err)
