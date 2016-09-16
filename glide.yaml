@@ -1,4 +1,4 @@
-package: main
+package: github.com/arschles/gci
 import:
 - package: gopkg.in/yaml.v2
 - package: github.com/aybabtme/rgbterm
