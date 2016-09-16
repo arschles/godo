@@ -1,8 +1,8 @@
 version: 0.0.1
 build:
-  output-binary: gci
+  output-binary: gci-test
   env:
-    - GOOS=linux
+    - GOOS=darwin
     - GOARCH=amd64
 test:
   paths:
