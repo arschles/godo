@@ -49,6 +49,7 @@ func Custom(c *cli.Context) {
 	paths := PathsOrDie()
 	log.Info("executing %s in a %s:%s container", customName, target.ImageName, target.ImageTag)
 
+	rmContainerCh := make(chan func())
 	stdOutCh := make(chan docker.Log)
 	stdErrCh := make(chan docker.Log)
 	exitCodeCh := make(chan int)
@@ -61,6 +62,7 @@ func Custom(c *cli.Context) {
 		target.MountTarget,
 		target.Command,
 		target.Envs,
+		rmContainerCh,
 		stdOutCh,
 		stdErrCh,
 		exitCodeCh,
@@ -69,6 +71,8 @@ func Custom(c *cli.Context) {
 
 	for {
 		select {
+		case fn := <-rmContainerCh:
+			defer fn()
 		case l := <-stdOutCh:
 			log.Info("%s", l)
 		case l := <-stdErrCh:

@@ -22,6 +22,7 @@ func Test(c *cli.Context) {
 		os.Exit(1)
 	}
 
+	rmContainerCh := make(chan func())
 	stdOutCh := make(chan docker.Log)
 	stdErrCh := make(chan docker.Log)
 	exitCodeCh := make(chan int)
@@ -41,6 +42,7 @@ func Test(c *cli.Context) {
 		docker.ContainerGopath(paths.PackageName),
 		strings.Join(cmd, " "),
 		cfg.Build.Env,
+		rmContainerCh,
 		stdOutCh,
 		stdErrCh,
 		exitCodeCh,
@@ -49,6 +51,8 @@ func Test(c *cli.Context) {
 
 	for {
 		select {
+		case fn := <-rmContainerCh:
+			defer fn()
 		case l := <-stdOutCh:
 			log.Info("%s", l)
 		case l := <-stdErrCh:

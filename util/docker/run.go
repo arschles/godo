@@ -11,6 +11,7 @@ import (
 
 // Run runs cmd in the given image using the docker client cl. It mounts cwd into containerMount in the running container and sends on the following channels:
 //
+// - rmContainerCh: a function closure that the receiver should call, after they receive on errCh or exitCodeCh, to remove the container. this is commonly done with a 'defer'
 // - stdOut: all logs from STDOUT in the container. this may never receive
 // - stdErr: all logs from STDERR in the container. this may never receive
 // - exitCodeCh: the exit code of the container
@@ -23,6 +24,7 @@ func Run(
 	containerMount,
 	cmd string,
 	env []string,
+	rmContainerCh chan<- func(),
 	stdOut chan<- Log,
 	stdErr chan<- Log,
 	exitCodeCh chan<- int,
@@ -48,11 +50,11 @@ func Run(
 		errCh <- err
 	}
 
-	defer func() {
+	rmContainerCh <- func() {
 		if err := cl.RemoveContainer(docker.RemoveContainerOptions{ID: container.ID, Force: true}); err != nil {
 			log.Warn("Error removing container %s (%s)", container.ID, err)
 		}
-	}()
+	}
 
 	log.Debug(CmdStr(createContainerOpts, hostConfig))
 

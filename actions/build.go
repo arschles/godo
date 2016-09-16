@@ -23,6 +23,7 @@ func Build(c *cli.Context) {
 		os.Exit(1)
 	}
 
+	rmContainerCh := make(chan func())
 	stdOutCh := make(chan docker.Log)
 	stdErrCh := make(chan docker.Log)
 	exitCodeCh := make(chan int)
@@ -38,6 +39,7 @@ func Build(c *cli.Context) {
 		docker.ContainerGopath(paths.PackageName),
 		fmt.Sprintf("go build -o %s .", binaryName),
 		cfg.Build.Env,
+		rmContainerCh,
 		stdOutCh,
 		stdErrCh,
 		exitCodeCh,
@@ -46,6 +48,8 @@ func Build(c *cli.Context) {
 
 	for {
 		select {
+		case rmContainerFn := <-rmContainerCh:
+			defer rmContainerFn()
 		case l := <-stdOutCh:
 			log.Info("%s", l)
 		case l := <-stdErrCh:
