@@ -50,3 +50,9 @@ custom:
     command: gox .
     mount-target: /go/src/github.com/arschles/gci
     env: ["GOPATH=/go"]
+  - name: test
+    description: test
+    image-name: quay.io/deis/go-dev
+    image-tag: 0.17.0
+    command: go test ./util/... ./tpl/... ./log/... ./config/... ./actions/... .
+    mount-target: /go/src/github.com/arschles/gci
