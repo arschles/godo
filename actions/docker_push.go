@@ -15,6 +15,7 @@ import (
 func DockerPush(c *cli.Context) {
 	dockerClient := dockutil.ClientOrDie()
 	cfg := config.ReadOrDie(c.String(FlagConfigFile))
+
 	if cfg.Docker.ImageName == "" {
 		log.Err("Docker image name was empty")
 		os.Exit(1)

@@ -22,7 +22,7 @@ type dockerBuildOneErr struct {
 }
 
 func (e dockerBuildOneErr) Error() string {
-	return fmt.Sprintf("error building %s:%s (%s)", e.imgBuild.Name, e.imgBuild.Tag, e.err)
+	return fmt.Sprintf("error building %s:%s (%s)", e.imgBuild.Name, e.imgBuild.GetTag(), e.err)
 }
 
 func dockerBuildOne(cl *docker.Client, imgBuild config.ImageBuild, errCh chan<- error, wg *sync.WaitGroup) {
@@ -79,7 +79,7 @@ func dockerBuildOne(cl *docker.Client, imgBuild config.ImageBuild, errCh chan<- 
 	}
 
 	opts := docker.BuildImageOptions{
-		Name:           fmt.Sprintf("%s:%s", imgBuild.Name, imgBuild.Tag),
+		Name:           fmt.Sprintf("%s:%s", imgBuild.Name, imgBuild.GetTag()),
 		InputStream:    buf,
 		Dockerfile:     "Dockerfile",
 		OutputStream:   os.Stdout,
