@@ -8,15 +8,19 @@ build:
     - GOOS=darwin
     - GOARCH=amd64
 docker:
-  image-name: quay.io/arschles/gci
-  tag: 0.0.1
   build:
-    context:
-      dir: .
-      skip:
-        - vendor
+    images:
+      - name: quay.io/arschles/gci
+        tag: 0.0.1
+        context:
+          dir: .
+          skip:
+            - vendor
   push:
     auth-file-location: ~/.docker/config.json
+    images:
+      - name: quay.io/arschles/gci
+        tag: 0.0.1
 custom:
   - name: hello-world
     description: print "hello world" in an ubuntu container
