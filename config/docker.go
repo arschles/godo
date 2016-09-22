@@ -2,6 +2,7 @@ package config
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/arschles/gci/util"
 )
@@ -66,6 +67,15 @@ func (i ImagePush) GetTag() string {
 		return "latest"
 	}
 	return i.Tag
+}
+
+func (i ImagePush) GetRegistry() string {
+	registry := "https://index.docker.io/v1/"
+	spl := strings.Split(i.Name, "/")
+	if len(spl) == 3 {
+		registry = spl[0]
+	}
+	return registry
 }
 
 type DockerPush struct {

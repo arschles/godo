@@ -2,64 +2,40 @@ package actions
 
 import (
 	"os"
-	"strings"
+	"sync"
 
 	"github.com/arschles/gci/config"
 	"github.com/arschles/gci/log"
-	dockutil "github.com/arschles/gci/util/docker"
+	"github.com/arschles/gci/util/docker"
 	"github.com/codegangsta/cli"
-	docker "github.com/fsouza/go-dockerclient"
 )
 
 // DockerPush is the cli action for 'gci docker-push'
 func DockerPush(c *cli.Context) {
-	dockerClient := dockutil.ClientOrDie()
+	dockerClient := docker.ClientOrDie()
 	cfg := config.ReadOrDie(c.String(FlagConfigFile))
 
-	if cfg.Docker.ImageName == "" {
-		log.Err("Docker image name was empty")
-		os.Exit(1)
-	}
-
-	pio := docker.PushImageOptions{
-		Name:         cfg.Docker.ImageName,
-		Tag:          cfg.Docker.GetTag(),
-		OutputStream: os.Stdout,
-	}
-
 	authFileLoc := cfg.Docker.Push.GetAuthFileLocation()
-	authFile, err := os.Open(authFileLoc)
+	authCfgs, closeFn, err := getAuthConfigs(authFileLoc)
 	if err != nil {
-		log.Err("Reading Docker auth file %s [%s]", authFileLoc, err)
+		log.Err("Getting auth file (%s)", err)
 		os.Exit(1)
 	}
-	defer func() {
-		if err := authFile.Close(); err != nil {
-			log.Err("Closing Docker auth file %s [%s]", authFileLoc, err)
-		}
+	defer closeFn()
+
+	errCh := make(chan error)
+	var wg sync.WaitGroup
+	for _, img := range cfg.Docker.Push.Images {
+		wg.Add(1)
+		go dockerPushOne(dockerClient, authCfgs, img, errCh, &wg)
+	}
+	go func() {
+		wg.Wait()
+		close(errCh)
 	}()
 
-	auths, err := docker.NewAuthConfigurations(authFile)
-	if err != nil {
-		log.Err("Parsing auth file %s [%s]", authFileLoc, err)
-		os.Exit(1)
+	for err := range errCh {
+		log.Err("%s", err)
 	}
-
-	registry := "https://index.docker.io/v1/"
-	spl := strings.Split(pio.Name, "/")
-	if len(spl) == 3 {
-		registry = spl[0]
-	}
-
-	auth, ok := auths.Configs[registry]
-	if !ok {
-		log.Err("Registry %s in your image %s is not in auth file %s ", registry, pio.Name, authFileLoc)
-		os.Exit(1)
-	}
-
-	if err := dockerClient.PushImage(pio, auth); err != nil {
-		log.Err("Pushing Docker image %s [%s]", pio.Name, err)
-		os.Exit(1)
-	}
-	log.Info("Successfully pushed Docker image %s:%s", pio.Name, pio.Tag)
+	log.Info("done")
 }

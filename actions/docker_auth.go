@@ -3,7 +3,7 @@ package actions
 import (
 	"os"
 
-	"github.com/arschles/steward/log"
+	"github.com/arschles/gci/log"
 	"github.com/fsouza/go-dockerclient"
 )
 

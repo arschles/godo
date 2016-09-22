@@ -30,4 +30,5 @@ func DockerBuild(c *cli.Context) {
 	for err := range errCh {
 		log.Err("%s", err)
 	}
+	log.Info("done")
 }
