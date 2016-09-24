@@ -1,6 +1,6 @@
 # Godo
 
-Godo is a build tool for executing consistent, reproducible builds inside Docker containers.
+Godo ("Go do") is a build tool for executing consistent, reproducible builds inside Docker containers.
 
 The only dependencies to use godo are a working Docker installation and the `godo` binary installed.
 
