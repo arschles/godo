@@ -8,9 +8,9 @@ import (
 
 func TestPackagePath(t *testing.T) {
 	gopath := "/go"
-	full := "/go/src/github.com/arschles/gci"
+	full := "/go/src/github.com/arschles/godo"
 
 	pkg, err := packagePath(gopath, full)
 	assert.NoErr(t, err)
-	assert.Equal(t, pkg, "github.com/arschles/gci", "package")
+	assert.Equal(t, pkg, "github.com/arschles/godo", "package")
 }

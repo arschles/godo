@@ -3,7 +3,7 @@ package config
 import (
 	"path/filepath"
 
-	"github.com/arschles/gci/util"
+	"github.com/arschles/godo/util"
 )
 
 type Docker struct {

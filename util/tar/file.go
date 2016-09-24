@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	fileutil "github.com/arschles/gci/util/file"
+	fileutil "github.com/arschles/godo/util/file"
 )
 
 type ErrWritingHeader struct {

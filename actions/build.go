@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/arschles/gci/config"
-	"github.com/arschles/gci/log"
-	"github.com/arschles/gci/util/docker"
+	"github.com/arschles/godo/config"
+	"github.com/arschles/godo/log"
+	"github.com/arschles/godo/util/docker"
 	"github.com/codegangsta/cli"
 )
 

@@ -3,7 +3,7 @@ package config
 import (
 	"io/ioutil"
 
-	"github.com/arschles/gci/log"
+	"github.com/arschles/godo/log"
 	"gopkg.in/yaml.v2"
 )
 

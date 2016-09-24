@@ -1,4 +1,4 @@
-package: github.com/arschles/gci
+package: github.com/arschles/godo
 import:
 - package: gopkg.in/yaml.v2
 - package: github.com/aybabtme/rgbterm

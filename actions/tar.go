@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/arschles/gci/log"
+	"github.com/arschles/godo/log"
 )
 
 // tarDir tars the entire directory under dir. It skips all hidden directories (starting with a '.') as well as files or directories which skip returns true for. If skip returns true for a directory, its entire contents will be skipped and skip will not be called for any of that directory's contents

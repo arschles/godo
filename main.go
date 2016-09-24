@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/arschles/gci/actions"
-	"github.com/arschles/gci/log"
+	"github.com/arschles/godo/actions"
+	"github.com/arschles/godo/log"
 	"github.com/codegangsta/cli"
 )
 

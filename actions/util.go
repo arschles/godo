@@ -3,7 +3,7 @@ package actions
 import (
 	"os"
 
-	"github.com/arschles/gci/log"
+	"github.com/arschles/godo/log"
 )
 
 type Paths struct {

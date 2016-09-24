@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/arschles/gci/log"
+	"github.com/arschles/godo/log"
 )
 
 func cmdStr(cmd *exec.Cmd) string {

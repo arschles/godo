@@ -3,7 +3,7 @@ package docker
 import (
 	"os"
 
-	"github.com/arschles/gci/log"
+	"github.com/arschles/godo/log"
 	docker "github.com/fsouza/go-dockerclient"
 )
 

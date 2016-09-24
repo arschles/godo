@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/arschles/gci/config"
-	"github.com/arschles/gci/log"
-	dockutil "github.com/arschles/gci/util/docker"
+	"github.com/arschles/godo/config"
+	"github.com/arschles/godo/log"
+	dockutil "github.com/arschles/godo/util/docker"
 	"github.com/codegangsta/cli"
 	docker "github.com/fsouza/go-dockerclient"
 )

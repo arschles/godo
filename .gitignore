@@ -29,4 +29,5 @@ gci_*
 gci-server-build.tar
 gci-bin-*
 gci-src-*
+godo
 vendor

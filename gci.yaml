@@ -36,18 +36,18 @@ custom:
     image-name: quay.io/deis/go-dev
     image-tag: "0.13.0"
     command: "glide install"
-    mount-target: /go/src/github.com/arschles/gci
+    mount-target: /go/src/github.com/arschles/godo
     env: ["GOPATH=/go"]
   - name: cross-compile
     description: cross compile GCI using gox
     image-name: quay.io/deis/go-dev
     image-tag: "0.13.0"
     command: gox .
-    mount-target: /go/src/github.com/arschles/gci
+    mount-target: /go/src/github.com/arschles/godo
     env: ["GOPATH=/go"]
   - name: test
     description: test
     image-name: quay.io/deis/go-dev
     image-tag: 0.17.0
     command: go test ./util/... ./tpl/... ./log/... ./config/... ./actions/... .
-    mount-target: /go/src/github.com/arschles/gci
+    mount-target: /go/src/github.com/arschles/godo
