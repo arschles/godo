@@ -65,7 +65,7 @@ type File struct {
 }
 
 func (f File) String() string {
-	return "GCI Config file version " + f.Version
+	return "Godo Config file version " + f.Version
 }
 
 // Build is the configuration for a build

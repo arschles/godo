@@ -1,4 +1,4 @@
-# GCI
+# Godo
 
 Godo is a build tool for executing consistent, reproducible builds inside Docker containers.
 
@@ -28,7 +28,7 @@ The following high level features are planned, but not yet implemented:
 
 ## Development
 
-Writing code for Godo is simple. Since it's a build tool, it can bootstrap itself by running `gci build` in the root of the repo.
+Writing code for Godo is simple. Since it's a build tool, it can bootstrap itself by running `godo build` in the root of the repo.
 
 Assuming you don't have a `godo` binary available, you can build it with the standard `go` toolchain as well. Here's what you'll need:
 

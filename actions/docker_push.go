@@ -11,7 +11,7 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 )
 
-// DockerPush is the cli action for 'gci docker-push'
+// DockerPush is the cli action for 'godo docker-push'
 func DockerPush(c *cli.Context) {
 	dockerClient := dockutil.ClientOrDie()
 	cfg := config.ReadOrDie(c.String(FlagConfigFile))

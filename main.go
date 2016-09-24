@@ -10,8 +10,8 @@ import (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "gci"
-	app.Usage = "gci is a build and CI tool for Go projects"
+	app.Name = "godo"
+	app.Usage = "godo is a build and CI tool for Go projects"
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  actions.FlagDebug,

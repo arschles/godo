@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	// ListCustomFlag is flag used by gci to list all custom dependencies
+	// ListCustomFlag is flag used by godo to list all custom dependencies
 	ListCustomFlag = "list"
 )
 
-// Custom is the CLI action for 'gci custom ...' commands
+// Custom is the CLI action for 'godo custom ...' commands
 func Custom(c *cli.Context) {
 	cfg := config.ReadOrDie(c.String(FlagConfigFile))
 	if c.Bool(ListCustomFlag) {
@@ -25,7 +25,7 @@ func Custom(c *cli.Context) {
 		return
 	}
 	if len(c.Args()) < 1 || c.Args()[0] == "" {
-		log.Err("you must call this command as 'gci custom <target>'")
+		log.Err("you must call this command as 'godo custom <target>'")
 		os.Exit(1)
 	}
 	customName := c.Args()[0]

@@ -1,9 +1,0 @@
-docker:
-  image-name: quay.io/arschles/gci-gox-env
-  tag: 0.0.1
-  build:
-    context:
-      dir: .
-      skip: [gci.yaml]
-  push:
-    auth-file-location: ~/.docker/config.json

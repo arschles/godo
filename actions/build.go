@@ -11,7 +11,7 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-// Build is the CLI handler for 'gci build'
+// Build is the CLI handler for 'godo build'
 func Build(c *cli.Context) {
 	cfg := config.ReadOrDie(c.String(FlagConfigFile))
 	paths := PathsOrDie()

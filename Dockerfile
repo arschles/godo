@@ -1,7 +1,7 @@
 FROM ubuntu-debootstrap:14.04
 
-COPY ./gci gci
+COPY ./godo godo
 COPY ./gci.yaml gci.yaml
-RUN mv gci /bin && mv gci.yaml /bin
+RUN mv godo /bin && mv gci.yaml /bin
 
-CMD gci
+CMD godo
