@@ -23,11 +23,9 @@ _testmain.go
 *.test
 *.prof
 example/example
-gci
-gci-test
-gci_*
-gci-server-build.tar
-gci-bin-*
-gci-src-*
 godo
+godo-test
+godo_darwin_*
+godo_freebsd_*
+godo_linux_*
 vendor

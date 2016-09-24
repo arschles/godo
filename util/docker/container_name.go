@@ -10,5 +10,5 @@ import (
 // NewContainerName returns a new, unique container name that includes prefix and cwd
 func NewContainerName(prefix string, cwd string) string {
 	projName := filepath.Base(cwd)
-	return fmt.Sprintf("gci-%s-%s-%s", projName, prefix, uuid.New())
+	return fmt.Sprintf("godo-%s-%s-%s", projName, prefix, uuid.New())
 }

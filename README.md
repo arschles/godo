@@ -4,6 +4,13 @@ Godo is a build tool for executing consistent, reproducible builds inside Docker
 
 The only dependencies to use godo are a working Docker installation and the `godo` binary installed.
 
+# Downloads
+
+- [Mac OS X 64 Bit](https://github.com/arschles/godo/releases/download/v0.3.0/godo_darwin_amd64)
+- [Linux 64 Bit](https://github.com/arschles/godo/releases/download/v0.3.0/godo_linux_amd64)
+- [Windows 64 Bit](https://github.com/arschles/godo/releases/download/v0.3.0/godo_windows_amd64.exe)
+- [Others](https://github.com/arschles/godo/releases/tag/v0.3.0)
+
 ## Usage
 
 Godo loosely resembles [`make`](https://www.gnu.org/software/make/), except the commands and scripts that you tell it to execute must be inside a Docker conainer.
@@ -16,7 +23,7 @@ Like `make`, it operates on _build targets_ and ships with the following targets
 
 ### Configuration
 
-Project structures and settings vary significantly, so each of those targets are configurable in a `gci.yaml` file (to be changed soon). See [Godo's own gci.yaml file](https://github.com/arschles/godo/blob/master/gci.yaml) for an example
+Project structures and settings vary significantly, so each of those targets are configurable in a `godo.yaml` file (or `godo.yml`). See [Godo's own godo.yaml file](https://github.com/arschles/godo/blob/master/godo.yaml) for an example
 
 #### Features Not Yet Implemented
 

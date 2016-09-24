@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	DefaultFileNameYaml = "gci.yaml"
-	DefaultFileNameYml  = "gci.yml"
+	DefaultFileNameYaml = "godo.yaml"
+	DefaultFileNameYml  = "godo.yml"
 )
 
 func ReadBytes(b []byte) (*File, error) {

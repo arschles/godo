@@ -3,12 +3,12 @@ build:
   image-name: quay.io/deis/go-dev
   image-tag: 0.17.0
   gopath: "/go"
-  output-binary: gci-test
+  output-binary: godo-test
   env:
     - GOOS=darwin
     - GOARCH=amd64
 docker:
-  image-name: quay.io/arschles/gci
+  image-name: quay.io/arschles/godo
   tag: 0.0.1
   build:
     context:
@@ -39,7 +39,7 @@ custom:
     mount-target: /go/src/github.com/arschles/godo
     env: ["GOPATH=/go"]
   - name: cross-compile
-    description: cross compile GCI using gox
+    description: cross compile Godo using gox
     image-name: quay.io/deis/go-dev
     image-tag: "0.13.0"
     command: gox .
